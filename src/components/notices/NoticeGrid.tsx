@@ -10,6 +10,8 @@ interface NoticeGridProps {
   onToggleChecklistItem: (noticeId: string, item: string) => void;
   onDeleteNotice: (id: string) => void;
   onOpenBuddyMatcher: (notice: Notice) => void;
+  savedNoticeIds?: Set<string>;
+  onToggleBookmark?: (id: string) => void;
 }
 
 export default function NoticeGrid({
@@ -20,6 +22,8 @@ export default function NoticeGrid({
   onToggleChecklistItem,
   onDeleteNotice,
   onOpenBuddyMatcher,
+  savedNoticeIds,
+  onToggleBookmark,
 }: NoticeGridProps) {
   if (notices.length === 0) {
     return (
@@ -59,6 +63,8 @@ export default function NoticeGrid({
             onToggleChecklistItem={onToggleChecklistItem}
             onDeleteNotice={onDeleteNotice}
             onOpenBuddyMatcher={onOpenBuddyMatcher}
+            isBookmarked={savedNoticeIds?.has(notice.id)}
+            onToggleBookmark={onToggleBookmark}
           />
         ))}
       </div>

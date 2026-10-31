@@ -1,20 +1,20 @@
 import { useState, useMemo } from 'react';
-import type { StudentContext, Category, UrgencyFilter, Notice, ViewMode } from './types/notice';
+import type { StudentContext, Category, UrgencyFilter, Notice, ViewMode, Branch, Year } from './types/notice';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNotices } from './hooks/useNotices';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
+import AnnouncementTicker from './components/layout/AnnouncementTicker';
 import Footer from './components/layout/Footer';
 import NeedsAttentionStrip from './components/notices/NeedsAttentionStrip';
 import SmartInputArea from './components/input/SmartInputArea';
-import FilterPills from './components/filters/FilterPills';
+import CampusFilterCard from './components/filters/CampusFilterCard';
 import NoticeGrid from './components/notices/NoticeGrid';
 import CalendarView from './components/calendar/CalendarView';
 import WeeklyDigestModal from './components/digest/WeeklyDigestModal';
 import ApiKeyModal from './components/input/ApiKeyModal';
 import CorrigendumMergeModal from './components/notices/CorrigendumMergeModal';
 import BuddyMatcherModal from './components/notices/BuddyMatcherModal';
-import { ViewToggle } from './components/common/Modal';
 import ToastContainer from './components/common/Toast';
 import { showToast } from './utils/toast';
 
@@ -34,16 +34,22 @@ export default function App() {
   const [isDigestOpen, setIsDigestOpen] = useState(false);
   const [activeBuddyNotice, setActiveBuddyNotice] = useState<Notice | null>(null);
 
-  // Unstop-style Sidebar toggle states
+  // Saved Bookmarks & Pinned State
+  const [savedIds, setSavedIds] = useLocalStorage<string[]>('my-library-saved-notices', ['seed-1', 'seed-2']);
+  const [isSavedOnly, setIsSavedOnly] = useState(false);
+  const [isPinnedOnly, setIsPinnedOnly] = useState(false);
+
+  // Unstop / Campus Pulse Sidebar toggle states
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // View state
+  // View state & Dropdown filter states matching photo
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState<Branch>('All');
+  const [selectedYear, setSelectedYear] = useState<Year | 'All'>('All');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [selectedUrgency, setSelectedUrgency] = useState<UrgencyFilter>('All');
-  const [relevantOnly, setRelevantOnly] = useState(false);
 
   // Corrigendum modal state
   const [corrigendumState, setCorrigendumState] = useState<{
@@ -69,21 +75,61 @@ export default function App() {
     resetToSampleData,
   } = useNotices(context);
 
+  // Category counts and urgent count for sidebar badges
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: notices.length };
+    notices.forEach(n => {
+      counts[n.category] = (counts[n.category] || 0) + 1;
+    });
+    return counts;
+  }, [notices]);
+
+  const urgentNotices = useMemo(() => {
+    return notices.filter(n => n.urgency === 'Urgent');
+  }, [notices]);
+
+  // Comprehensive filtered notices
   const filteredNotices = useMemo(() => {
-    return getFilteredNotices(searchQuery, selectedCategory, selectedUrgency, relevantOnly);
-  }, [getFilteredNotices, searchQuery, selectedCategory, selectedUrgency, relevantOnly]);
+    let list = getFilteredNotices(searchQuery, selectedCategory, selectedUrgency, false);
+
+    if (selectedBranch !== 'All') {
+      list = list.filter(n => n.targetBranches.includes('All') || n.targetBranches.includes(selectedBranch));
+    }
+    if (selectedYear !== 'All') {
+      list = list.filter(n => n.targetYears.includes(selectedYear));
+    }
+    if (isPinnedOnly) {
+      list = list.filter(n => n.isPinned);
+    }
+    if (isSavedOnly) {
+      list = list.filter(n => savedIds.includes(n.id));
+    }
+    return list;
+  }, [getFilteredNotices, searchQuery, selectedCategory, selectedUrgency, selectedBranch, selectedYear, isPinnedOnly, isSavedOnly, savedIds]);
 
   const hasActiveFilters =
     searchQuery.trim().length > 0 ||
+    selectedBranch !== 'All' ||
+    selectedYear !== 'All' ||
     selectedCategory !== 'All' ||
     selectedUrgency !== 'All' ||
-    relevantOnly;
+    isPinnedOnly ||
+    isSavedOnly;
 
   const handleResetFilters = () => {
     setSearchQuery('');
+    setSelectedBranch('All');
+    setSelectedYear('All');
     setSelectedCategory('All');
     setSelectedUrgency('All');
-    setRelevantOnly(false);
+    setIsPinnedOnly(false);
+    setIsSavedOnly(false);
+  };
+
+  const handleToggleBookmark = (id: string) => {
+    const isCurrentlySaved = savedIds.includes(id);
+    setSavedIds(prev => isCurrentlySaved ? prev.filter(x => x !== id) : [...prev, id]);
+    showToast(isCurrentlySaved ? 'Notice removed from saved bookmarks' : 'Notice saved to bookmarks', 'info');
   };
 
   const handleNoticeExtracted = (notice: Notice, isCorrigendumFlag: boolean) => {
@@ -122,18 +168,19 @@ export default function App() {
 
   const handleShowNoticeFeed = () => {
     setViewMode('grid');
+    setSelectedCategory('All');
     setSelectedUrgency('All');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/60 text-slate-900 selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50/70 text-slate-900 selection:bg-blue-600 selection:text-white">
       {/* Accessible skip link */}
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
 
-      {/* Top Navbar (Unstop Style) */}
+      {/* Top Navbar */}
       <Navbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -142,6 +189,17 @@ export default function App() {
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+        savedCount={savedIds.length}
+        urgentCount={urgentNotices.length}
+        onToggleSavedOnly={() => setIsSavedOnly(!isSavedOnly)}
+        isSavedOnly={isSavedOnly}
+        onScrollToAttention={handleScrollToAttention}
+      />
+
+      {/* Top Urgent Announcement Banner Ticker */}
+      <AnnouncementTicker
+        urgentNotices={urgentNotices}
+        onSelectNotice={() => handleScrollToAttention()}
       />
 
       {/* Body with Sidebar + Content */}
@@ -152,6 +210,8 @@ export default function App() {
           onViewModeChange={setViewMode}
           selectedUrgency={selectedUrgency}
           onSelectFeed={handleShowNoticeFeed}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
           context={context}
           onContextChange={(newContext) => {
             setContext(newContext);
@@ -163,27 +223,52 @@ export default function App() {
           isCollapsed={isSidebarCollapsed}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          categoryCounts={categoryCounts}
+          urgentCount={urgentNotices.length}
         />
 
         {/* Main Feed Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-7">
-            {/* Clean Hero Header */}
+          <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+            {/* Header matching laptop screenshot */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  Campus Life <span className="text-blue-600">Assistant</span>
+                  All Campus Updates
                 </h1>
                 <p className="text-sm text-slate-500 font-medium mt-0.5">
-                  Unified intelligent notice stream, clash detection & task triage
+                  Chronological institutional stream across all faculties and departments
                 </p>
               </div>
 
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold self-start sm:self-auto shadow-2xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold self-start sm:self-auto shadow-2xs border border-slate-200/80">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Profile: <strong>{context.year} Year {context.branch}</strong> ({context.focusMode})</span>
               </div>
             </div>
+
+            {/* Central Filter Panel matching laptop photo */}
+            <CampusFilterCard
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedBranch={selectedBranch}
+              onBranchChange={setSelectedBranch}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              selectedUrgency={selectedUrgency}
+              onUrgencyChange={setSelectedUrgency}
+              isPinnedOnly={isPinnedOnly}
+              onTogglePinnedOnly={() => setIsPinnedOnly(!isPinnedOnly)}
+              isSavedOnly={isSavedOnly}
+              onToggleSavedOnly={() => setIsSavedOnly(!isSavedOnly)}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              totalFilteredCount={filteredNotices.length}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
 
             {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
             <div id="attention-section" className="scroll-mt-20">
@@ -199,40 +284,7 @@ export default function App() {
               />
             </div>
 
-            {/* Notices Header with Blue Accent Bar (Unstop Style) */}
-            <section className="space-y-4" aria-label="Campus notices and filters">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-1 h-6 bg-blue-600 rounded-full" aria-hidden="true" />
-                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                    Campus Notices
-                  </h2>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800">
-                    {filteredNotices.length} items
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between sm:justify-end gap-3">
-                  <ViewToggle view={viewMode} onViewChange={setViewMode} />
-                </div>
-              </div>
-
-              {/* Filter Pills */}
-              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
-                <FilterPills
-                  selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory}
-                  selectedUrgency={selectedUrgency}
-                  onUrgencyChange={setSelectedUrgency}
-                  relevantOnly={relevantOnly}
-                  onRelevantOnlyToggle={setRelevantOnly}
-                  onResetFilters={handleResetFilters}
-                  hasActiveFilters={hasActiveFilters}
-                />
-              </div>
-            </section>
-
-            {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
+            {/* Multi-Modal View: Grid of Cards (matching photo) OR Calendar */}
             {viewMode === 'grid' ? (
               <NoticeGrid
                 notices={filteredNotices}
@@ -245,6 +297,8 @@ export default function App() {
                   showToast('Notice archived from feed', 'info');
                 }}
                 onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
+                savedNoticeIds={new Set(savedIds)}
+                onToggleBookmark={handleToggleBookmark}
               />
             ) : (
               <CalendarView notices={filteredNotices} />

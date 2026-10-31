@@ -7,8 +7,13 @@ import {
   Zap,
   X,
   User,
+  ShieldCheck,
+  Briefcase,
+  BookOpen,
+  Compass,
+  Library,
 } from 'lucide-react';
-import type { StudentContext, Branch, Year, FocusMode, ViewMode, UrgencyFilter } from '../../types/notice';
+import type { StudentContext, Branch, Year, FocusMode, ViewMode, UrgencyFilter, Category } from '../../types/notice';
 import { demoPresets } from '../../data/sampleNotices';
 
 interface SidebarProps {
@@ -16,6 +21,8 @@ interface SidebarProps {
   onViewModeChange: (mode: ViewMode) => void;
   selectedUrgency: UrgencyFilter;
   onSelectFeed: () => void;
+  selectedCategory: Category | 'All';
+  onCategoryChange: (category: Category | 'All') => void;
   context: StudentContext;
   onContextChange: (context: StudentContext) => void;
   onScrollToInput: () => void;
@@ -24,6 +31,8 @@ interface SidebarProps {
   isCollapsed: boolean;
   isMobileOpen: boolean;
   onCloseMobile: () => void;
+  categoryCounts?: Record<string, number>;
+  urgentCount?: number;
 }
 
 const BRANCHES: Branch[] = ['All', 'CSE', 'ECE', 'ME', 'EE', 'CE'];
@@ -40,6 +49,8 @@ export default function Sidebar({
   onViewModeChange,
   selectedUrgency,
   onSelectFeed,
+  selectedCategory,
+  onCategoryChange,
   context,
   onContextChange,
   onScrollToInput,
@@ -48,6 +59,8 @@ export default function Sidebar({
   isCollapsed,
   isMobileOpen,
   onCloseMobile,
+  categoryCounts = {},
+  urgentCount = 0,
 }: SidebarProps) {
   const sidebarContent = (
     <div className="flex flex-col h-full justify-between p-4 space-y-4 overflow-y-auto">
@@ -58,12 +71,29 @@ export default function Sidebar({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
             aria-label="Close menu"
           >
             <X size={20} />
           </button>
         </div>
+
+        {/* Top Header inside sidebar matching photo */}
+        {!isCollapsed && (
+          <div className="flex items-center gap-2.5 pb-1">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
+              <Library size={16} />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-slate-900 text-xs tracking-tight flex items-center gap-1">
+                MY LIBRARY <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                MENU & SECTIONS
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Top "+ Post Notice" Action Button */}
         <button
@@ -82,42 +112,194 @@ export default function Sidebar({
           {!isCollapsed && <span>Post Notice</span>}
         </button>
 
-        {/* Clean Essential Navigation (Zero Fluff) */}
-        <nav className="space-y-1" aria-label="Essential navigation">
-          {/* Feed View */}
+        {/* Section Title matching photo */}
+        {!isCollapsed && (
+          <div className="flex items-center justify-between px-1 pt-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+            <span>EXPLORE CAMPUS SECTIONS</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono text-[9px]">
+              10 Areas
+            </span>
+          </div>
+        )}
+
+        {/* Navigation items matching photo layout */}
+        <nav className="space-y-1" aria-label="Campus sections navigation">
+          {/* All Updates Feed */}
           <button
             type="button"
             onClick={() => {
+              onCategoryChange('All');
               onSelectFeed();
               onCloseMobile();
             }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
-              viewMode === 'grid' && selectedUrgency !== 'Urgent'
-                ? 'bg-blue-50 text-blue-700 font-bold'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'All' && selectedUrgency !== 'Urgent'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
             } ${isCollapsed ? 'justify-center px-2' : ''}`}
-            title="Campus Notice Feed"
+            title="All Campus Updates Feed"
           >
-            <LayoutGrid size={18} className={viewMode === 'grid' && selectedUrgency !== 'Urgent' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
-            {!isCollapsed && <span>Notice Feed</span>}
+            <div className="flex items-center gap-2.5">
+              <LayoutGrid size={16} className={viewMode === 'grid' && selectedCategory === 'All' && selectedUrgency !== 'Urgent' ? 'text-white shrink-0' : 'text-slate-400 shrink-0'} />
+              {!isCollapsed && <span>All Updates Feed</span>}
+            </div>
+            {!isCollapsed && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                viewMode === 'grid' && selectedCategory === 'All' && selectedUrgency !== 'Urgent' ? 'bg-blue-700 text-white' : 'text-slate-400'
+              }`}>
+                {categoryCounts['All'] || 9}
+              </span>
+            )}
           </button>
 
-          {/* Calendar View */}
+          {/* Official Notices */}
+          <button
+            type="button"
+            onClick={() => {
+              onCategoryChange('Admin/Exam');
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'Admin/Exam'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Official Notices & Exams"
+          >
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck size={16} className="text-orange-600 shrink-0" />
+              {!isCollapsed && <span>Official Notices</span>}
+            </div>
+            {!isCollapsed && (
+              <span className="text-[10px] text-slate-400 font-mono">
+                {categoryCounts['Admin/Exam'] || 2}
+              </span>
+            )}
+          </button>
+
+          {/* Campus Events */}
+          <button
+            type="button"
+            onClick={() => {
+              onCategoryChange('Events/Fest');
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'Events/Fest'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Campus Events & Fests"
+          >
+            <div className="flex items-center gap-2.5">
+              <Calendar size={16} className="text-pink-600 shrink-0" />
+              {!isCollapsed && <span>Campus Events</span>}
+            </div>
+            {!isCollapsed && (
+              <span className="text-[10px] text-slate-400 font-mono">
+                {categoryCounts['Events/Fest'] || 2}
+              </span>
+            )}
+          </button>
+
+          {/* Assignments & Academics */}
+          <button
+            type="button"
+            onClick={() => {
+              onCategoryChange('Academic');
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'Academic'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Academics & Labs"
+          >
+            <div className="flex items-center gap-2.5">
+              <BookOpen size={16} className="text-sky-600 shrink-0" />
+              {!isCollapsed && <span>Academics & Labs</span>}
+            </div>
+            {!isCollapsed && (
+              <span className="text-[10px] text-slate-400 font-mono">
+                {categoryCounts['Academic'] || 2}
+              </span>
+            )}
+          </button>
+
+          {/* Placements & Opportunities */}
+          <button
+            type="button"
+            onClick={() => {
+              onCategoryChange('Placement');
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'Placement'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Placements & Job Drives"
+          >
+            <div className="flex items-center gap-2.5">
+              <Briefcase size={16} className="text-purple-600 shrink-0" />
+              {!isCollapsed && <span>Placements & Jobs</span>}
+            </div>
+            {!isCollapsed && (
+              <span className="text-[10px] text-slate-400 font-mono">
+                {categoryCounts['Placement'] || 2}
+              </span>
+            )}
+          </button>
+
+          {/* Clubs & Societies */}
+          <button
+            type="button"
+            onClick={() => {
+              onCategoryChange('Clubs');
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              viewMode === 'grid' && selectedCategory === 'Clubs'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Clubs & Societies"
+          >
+            <div className="flex items-center gap-2.5">
+              <Compass size={16} className="text-emerald-600 shrink-0" />
+              {!isCollapsed && <span>Clubs & Societies</span>}
+            </div>
+            {!isCollapsed && (
+              <span className="text-[10px] text-slate-400 font-mono">
+                {categoryCounts['Clubs'] || 1}
+              </span>
+            )}
+          </button>
+
+          {/* Timetable & Calendar */}
           <button
             type="button"
             onClick={() => {
               onViewModeChange('calendar');
               onCloseMobile();
             }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
               viewMode === 'calendar'
-                ? 'bg-blue-50 text-blue-700 font-bold'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200 font-extrabold'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
             } ${isCollapsed ? 'justify-center px-2' : ''}`}
             title="Calendar Schedule Matrix"
           >
-            <Calendar size={18} className={viewMode === 'calendar' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
-            {!isCollapsed && <span>Calendar View</span>}
+            <div className="flex items-center gap-2.5">
+              <Calendar size={16} className="text-blue-600 shrink-0" />
+              {!isCollapsed && <span>Timetable & Calendar</span>}
+            </div>
           </button>
 
           {/* Needs Attention Jump & Filter */}
@@ -127,15 +309,22 @@ export default function Sidebar({
               onScrollToAttention();
               onCloseMobile();
             }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
               selectedUrgency === 'Urgent' && viewMode === 'grid'
                 ? 'bg-red-50 text-red-700 font-bold border border-red-200'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
             } ${isCollapsed ? 'justify-center px-2' : ''}`}
             title="Filter to urgent tasks and spotlight Needs Attention"
           >
-            <Flame size={18} className="text-red-500 shrink-0" />
-            {!isCollapsed && <span>Needs Attention</span>}
+            <div className="flex items-center gap-2.5">
+              <Flame size={16} className="text-red-500 shrink-0" />
+              {!isCollapsed && <span>Needs Attention</span>}
+            </div>
+            {urgentCount > 0 && !isCollapsed && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-mono">
+                {urgentCount}
+              </span>
+            )}
           </button>
         </nav>
 

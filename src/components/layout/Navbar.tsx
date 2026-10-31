@@ -1,4 +1,4 @@
-import { Search, X, Sparkles, KeyRound, ChevronLeft, ChevronRight, Menu, Library } from 'lucide-react';
+import { Search, X, Sparkles, KeyRound, ChevronLeft, ChevronRight, Menu, Library, Bookmark, Bell } from 'lucide-react';
 
 interface NavbarProps {
   searchQuery: string;
@@ -8,6 +8,11 @@ interface NavbarProps {
   isSidebarCollapsed: boolean;
   onToggleSidebar: () => void;
   onOpenMobileSidebar: () => void;
+  savedCount?: number;
+  urgentCount?: number;
+  onToggleSavedOnly?: () => void;
+  isSavedOnly?: boolean;
+  onScrollToAttention?: () => void;
 }
 
 export default function Navbar({
@@ -18,6 +23,11 @@ export default function Navbar({
   isSidebarCollapsed,
   onToggleSidebar,
   onOpenMobileSidebar,
+  savedCount = 0,
+  urgentCount = 0,
+  onToggleSavedOnly,
+  isSavedOnly = false,
+  onScrollToAttention,
 }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs h-16 flex items-center px-4 sm:px-6 justify-between gap-4">
@@ -33,18 +43,26 @@ export default function Navbar({
         </button>
 
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-extrabold text-base shadow-sm">
-            <Library size={18} />
+          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+            <Library size={19} />
           </div>
-          <span className="font-extrabold text-slate-900 tracking-tight text-lg hidden sm:inline-block">
-            my<span className="text-blue-600">library</span>
-          </span>
+          <div className="hidden sm:flex flex-col">
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className="font-black text-slate-900 tracking-tight text-base uppercase">
+                CAMPUS PULSE
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+            </div>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+              CENTRALIZED COLLEGE PORTAL
+            </span>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
           aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
@@ -52,7 +70,7 @@ export default function Navbar({
         </button>
       </div>
 
-      {/* Center Wide Pill Search Bar (Unstop Style) */}
+      {/* Center Wide Search Bar */}
       <div className="flex-1 max-w-xl mx-auto">
         <div className="relative flex items-center">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -62,9 +80,9 @@ export default function Navbar({
             type="search"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search notices, exams, hackathons, placements, venues..."
+            placeholder="Search circulars, assignments, events, notes..."
             className="w-full pl-10 pr-9 py-2 text-sm font-medium bg-slate-50 hover:bg-white focus:bg-white text-slate-900 border border-slate-200 focus:border-blue-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs transition placeholder:text-slate-400"
-            aria-label="Search notices"
+            aria-label="Search notices and circulars"
           />
           {searchQuery && (
             <button
@@ -79,9 +97,49 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* Right Actions (Unstop Style) */}
+      {/* Right Action Icons (Saved Bookmarks + Urgent Notifications + AI Digest + Settings) */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* AI Digest pill (like "For Business" in Unstop) */}
+        {/* Saved Bookmarks button */}
+        {onToggleSavedOnly && (
+          <button
+            type="button"
+            onClick={onToggleSavedOnly}
+            className={`relative p-2 rounded-xl transition cursor-pointer ${
+              isSavedOnly
+                ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+            title={isSavedOnly ? 'Show all updates' : 'Show saved bookmarks'}
+            aria-label="Filter saved bookmarks"
+          >
+            <Bookmark size={18} className={isSavedOnly ? 'fill-blue-600' : ''} />
+            {savedCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                {savedCount}
+              </span>
+            )}
+          </button>
+        )}
+
+        {/* Notifications Bell button */}
+        {onScrollToAttention && (
+          <button
+            type="button"
+            onClick={onScrollToAttention}
+            className="relative p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+            title="Jump to urgent deadlines & clash notifications"
+            aria-label="Urgent notifications"
+          >
+            <Bell size={18} />
+            {urgentCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                {urgentCount}
+              </span>
+            )}
+          </button>
+        )}
+
+        {/* AI Weekly Digest */}
         <button
           type="button"
           onClick={onOpenDigest}
@@ -93,7 +151,7 @@ export default function Navbar({
           <span className="sm:hidden">Digest</span>
         </button>
 
-        {/* API Key button (like "Login" blue pill in Unstop) */}
+        {/* Configure Key */}
         <button
           type="button"
           onClick={onOpenApiKeyModal}

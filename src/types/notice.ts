@@ -40,6 +40,9 @@ export interface Notice {
   verificationReason: string;
   isAttendanceRisk?: boolean;
   buddies?: BuddyProfile[];
+  isPinned?: boolean;
+  author?: string;
+  department?: string;
 }
 
 export interface StudentContext {

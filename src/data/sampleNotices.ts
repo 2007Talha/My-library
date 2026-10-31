@@ -113,6 +113,9 @@ export const sampleNotices: Notice[] = [
       { id: 'b1', name: 'Aarav Sharma', branch: 'CSE', year: '3rd', status: 'seeking', note: 'Looking for a study partner to practice coding round questions together' },
       { id: 'b2', name: 'Rohan Verma', branch: 'ECE', year: '3rd', status: 'matched', note: 'Formed resume review pair' },
     ],
+    isPinned: true,
+    author: 'Prof. Ananya Sen',
+    department: 'Training & Placement Cell',
   },
   {
     id: 'seed-2',
@@ -140,6 +143,9 @@ export const sampleNotices: Notice[] = [
     verificationScore: 98,
     verificationReason: 'Official Circular Ref COE/2026/410 signed by Controller of Examinations',
     isAttendanceRisk: true,
+    isPinned: true,
+    author: 'Dr. K. R. Ramanathan',
+    department: 'Controller of Examinations',
     buddies: [
       { id: 'b3', name: 'Ananya Gupta', branch: 'CSE', year: '3rd', status: 'seeking', note: 'Group study session for Operating Systems algorithms' },
     ],
