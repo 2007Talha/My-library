@@ -52,3 +52,4 @@ export default function AnnouncementTicker({ urgentNotices, onSelectNotice }: An
     </aside>
   );
 }
+

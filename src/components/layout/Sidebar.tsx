@@ -11,7 +11,6 @@ import {
   Briefcase,
   BookOpen,
   Compass,
-  Library,
 } from 'lucide-react';
 import type { StudentContext, Branch, Year, FocusMode, ViewMode, UrgencyFilter, Category } from '../../types/notice';
 import { demoPresets } from '../../data/sampleNotices';
@@ -77,23 +76,6 @@ export default function Sidebar({
             <X size={20} />
           </button>
         </div>
-
-        {/* Top Header inside sidebar matching photo */}
-        {!isCollapsed && (
-          <div className="flex items-center gap-2.5 pb-1">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
-              <Library size={16} />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-black text-slate-900 text-xs tracking-tight flex items-center gap-1">
-                MY LIBRARY <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              </span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                MENU & SECTIONS
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Top "+ Post Notice" Action Button */}
         <button

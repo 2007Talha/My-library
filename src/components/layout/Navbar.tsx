@@ -49,7 +49,7 @@ export default function Navbar({
           <div className="hidden sm:flex flex-col">
             <div className="flex items-center gap-1.5 leading-none">
               <span className="font-black text-slate-900 tracking-tight text-base uppercase">
-                CAMPUS PULSE
+                MY LIBRARY
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
             </div>
