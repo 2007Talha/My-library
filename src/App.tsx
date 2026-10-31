@@ -4,7 +4,6 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNotices } from './hooks/useNotices';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
-import HeroCategoryTiles from './components/layout/HeroCategoryTiles';
 import Footer from './components/layout/Footer';
 import NeedsAttentionStrip from './components/notices/NeedsAttentionStrip';
 import SmartInputArea from './components/input/SmartInputArea';
@@ -140,16 +139,17 @@ export default function App() {
 
       {/* Body with Sidebar + Content */}
       <div className="flex-1 flex min-w-0">
-        {/* Left Sidebar (Unstop Style) */}
+        {/* Left Sidebar */}
         <Sidebar
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
           context={context}
           onContextChange={(newContext) => {
             setContext(newContext);
             showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
           }}
           onScrollToInput={handleScrollToInput}
+          onScrollToAttention={handleScrollToAttention}
           onResetData={handleResetAllData}
           isCollapsed={isSidebarCollapsed}
           isMobileOpen={isMobileSidebarOpen}
@@ -159,14 +159,22 @@ export default function App() {
         {/* Main Feed Area */}
         <div className="flex-1 flex flex-col min-w-0">
           <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-7">
-            {/* Hero Section with Unstop Category Tiles */}
-            <HeroCategoryTiles
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              onOpenDigest={() => setIsDigestOpen(true)}
-              onScrollToAttention={handleScrollToAttention}
-              urgentCount={notices.filter(n => n.urgency === 'Urgent').length}
-            />
+            {/* Clean Hero Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  Campus Life <span className="text-blue-600">Assistant</span>
+                </h1>
+                <p className="text-sm text-slate-500 font-medium mt-0.5">
+                  Unified intelligent notice stream, clash detection & task triage
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold self-start sm:self-auto shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Profile: <strong>{context.year} Year {context.branch}</strong> ({context.focusMode})</span>
+              </div>
+            </div>
 
             {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
             <NeedsAttentionStrip notices={notices} clashes={clashes} />

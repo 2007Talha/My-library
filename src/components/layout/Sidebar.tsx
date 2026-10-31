@@ -1,25 +1,25 @@
 import {
-  Home,
-  GraduationCap,
-  Briefcase,
-  Trophy,
-  Compass,
-  FileText,
+  LayoutGrid,
+  Calendar,
+  Flame,
   AlertTriangle,
+  ShieldCheck,
   Plus,
   RotateCcw,
   Zap,
   X,
+  User,
 } from 'lucide-react';
-import type { StudentContext, Category, Branch, Year, FocusMode } from '../../types/notice';
+import type { StudentContext, Branch, Year, FocusMode, ViewMode } from '../../types/notice';
 import { demoPresets } from '../../data/sampleNotices';
 
 interface SidebarProps {
-  selectedCategory: Category | 'All';
-  onCategoryChange: (category: Category | 'All') => void;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
   context: StudentContext;
   onContextChange: (context: StudentContext) => void;
   onScrollToInput: () => void;
+  onScrollToAttention: () => void;
   onResetData: () => void;
   isCollapsed: boolean;
   isMobileOpen: boolean;
@@ -36,11 +36,12 @@ const FOCUS_MODES: { value: FocusMode; label: string }[] = [
 ];
 
 export default function Sidebar({
-  selectedCategory,
-  onCategoryChange,
+  viewMode,
+  onViewModeChange,
   context,
   onContextChange,
   onScrollToInput,
+  onScrollToAttention,
   onResetData,
   isCollapsed,
   isMobileOpen,
@@ -56,21 +57,12 @@ export default function Sidebar({
     });
   };
 
-  const navItems = [
-    { label: 'Home', icon: Home, category: 'All' as Category | 'All' },
-    { label: 'Academics & Labs', icon: GraduationCap, category: 'Academic' as Category },
-    { label: 'Placements & Jobs', icon: Briefcase, category: 'Placement' as Category },
-    { label: 'Competitions & Fests', icon: Trophy, category: 'Events/Fest' as Category },
-    { label: 'Clubs & Societies', icon: Compass, category: 'Clubs' as Category },
-    { label: 'Exams & Circulars', icon: FileText, category: 'Admin/Exam' as Category },
-  ];
-
   const sidebarContent = (
-    <div className="flex flex-col h-full justify-between p-4 space-y-5 overflow-y-auto">
+    <div className="flex flex-col h-full justify-between p-4 space-y-4 overflow-y-auto">
       <div className="space-y-4">
         {/* Mobile Close Button */}
         <div className="flex items-center justify-between md:hidden pb-2 border-b border-slate-100">
-          <span className="font-extrabold text-slate-900 text-base">Navigation</span>
+          <span className="font-extrabold text-slate-900 text-base">Menu</span>
           <button
             type="button"
             onClick={onCloseMobile}
@@ -81,50 +73,78 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Top "+ Post" Action Button (Unstop Style) */}
+        {/* Top "+ Post Notice" Action Button */}
         <button
           type="button"
           onClick={() => {
             onScrollToInput();
             onCloseMobile();
           }}
-          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-full border border-blue-200 bg-blue-50/50 hover:bg-blue-100 text-blue-700 text-sm font-bold shadow-2xs transition cursor-pointer ${
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-xs transition cursor-pointer ${
             isCollapsed ? 'px-2' : 'px-4'
           }`}
-          title="Submit or paste new campus notice"
-          aria-label="Submit or paste notice"
+          title="Paste or scan new notice"
+          aria-label="Paste or scan notice"
         >
-          <Plus size={18} className="text-blue-600 shrink-0" />
+          <Plus size={18} className="shrink-0" />
           {!isCollapsed && <span>Post Notice</span>}
         </button>
 
-        {/* Navigation Items (Unstop Style) */}
-        <nav className="space-y-1" aria-label="Campus categories">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = selectedCategory === item.category;
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => {
-                  onCategoryChange(item.category);
-                  onCloseMobile();
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 font-bold'
-                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                } ${isCollapsed ? 'justify-center px-2' : ''}`}
-                title={item.label}
-              >
-                <Icon size={18} className={isActive ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
-                {!isCollapsed && <span>{item.label}</span>}
-              </button>
-            );
-          })}
+        {/* Clean Essential Navigation (Zero Fluff) */}
+        <nav className="space-y-1" aria-label="Essential navigation">
+          {/* Feed View */}
+          <button
+            type="button"
+            onClick={() => {
+              onViewModeChange('grid');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
+              viewMode === 'grid'
+                ? 'bg-blue-50 text-blue-700 font-bold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Campus Notice Feed"
+          >
+            <LayoutGrid size={18} className={viewMode === 'grid' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
+            {!isCollapsed && <span>Notice Feed</span>}
+          </button>
 
-          {/* Attendance Risk Quick Nav item */}
+          {/* Calendar View */}
+          <button
+            type="button"
+            onClick={() => {
+              onViewModeChange('calendar');
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
+              viewMode === 'calendar'
+                ? 'bg-blue-50 text-blue-700 font-bold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Calendar Schedule Matrix"
+          >
+            <Calendar size={18} className={viewMode === 'calendar' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
+            {!isCollapsed && <span>Calendar View</span>}
+          </button>
+
+          {/* Needs Attention Jump */}
+          <button
+            type="button"
+            onClick={() => {
+              onScrollToAttention();
+              onCloseMobile();
+            }}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer ${
+              isCollapsed ? 'justify-center px-2' : ''
+            }`}
+            title="Jump to Needs Attention Today"
+          >
+            <Flame size={18} className="text-red-500 shrink-0" />
+            {!isCollapsed && <span>Needs Attention</span>}
+          </button>
+
+          {/* Attendance Radar Toggle */}
           <button
             type="button"
             onClick={toggleAttendance}
@@ -133,14 +153,18 @@ export default function Sidebar({
                 ? 'bg-red-50 text-red-700 font-bold border border-red-200'
                 : 'text-slate-700 hover:bg-slate-100'
             } ${isCollapsed ? 'justify-center px-2' : ''}`}
-            title="Toggle attendance risk to test triage"
+            title="Click to toggle low attendance warning"
           >
-            <AlertTriangle size={18} className={isLow ? 'text-red-600 shrink-0' : 'text-slate-500 shrink-0'} />
+            {isLow ? (
+              <AlertTriangle size={18} className="text-red-600 shrink-0 animate-bounce" />
+            ) : (
+              <ShieldCheck size={18} className="text-emerald-600 shrink-0" />
+            )}
             {!isCollapsed && (
               <div className="flex items-center justify-between w-full">
                 <span>Attendance Radar</span>
                 <span className={`text-xs px-2 py-0.5 rounded-md font-bold ${isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                  {isLow ? '<75%' : '86%'}
+                  {isLow ? '<75% Risk' : '86% Safe'}
                 </span>
               </div>
             )}
@@ -149,16 +173,19 @@ export default function Sidebar({
 
         {/* Student Context Card (Expanded only) */}
         {!isCollapsed && (
-          <div className="p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-3">
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-slate-800 uppercase tracking-wide">
-              <span>My Profile Filter</span>
+              <span className="flex items-center gap-1.5">
+                <User size={13} className="text-blue-600" />
+                Profile Context
+              </span>
               <span className="text-blue-700 font-semibold">{context.branch} • {context.year}</span>
             </div>
 
             <div className="space-y-2">
               <div>
                 <label htmlFor="sidebar-branch" className="block text-xs font-semibold text-slate-600 mb-1">
-                  Branch
+                  Department / Branch
                 </label>
                 <select
                   id="sidebar-branch"
@@ -167,7 +194,7 @@ export default function Sidebar({
                   className="w-full text-xs font-semibold bg-white text-slate-800 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
                 >
                   {BRANCHES.map(b => (
-                    <option key={b} value={b}>{b === 'All' ? 'All Branches' : `${b} Dept`}</option>
+                    <option key={b} value={b}>{b === 'All' ? 'All Departments' : `${b} Dept`}</option>
                   ))}
                 </select>
               </div>
@@ -258,7 +285,7 @@ export default function Sidebar({
 
         {!isCollapsed && (
           <div className="text-[11px] text-slate-400 text-center">
-            Built for PromptWars × CSSS
+            My Library • Privacy Engine
           </div>
         )}
       </div>
@@ -267,12 +294,12 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop Sticky Left Sidebar (Unstop Style) */}
+      {/* Desktop Sticky Left Sidebar */}
       <aside
         className={`hidden md:flex flex-col shrink-0 bg-white border-r border-slate-200/90 h-[calc(100vh-4rem)] sticky top-16 z-30 transition-all duration-200 ${
           isCollapsed ? 'w-16' : 'w-60 lg:w-64'
         }`}
-        aria-label="Application categories"
+        aria-label="Navigation sidebar"
       >
         {sidebarContent}
       </aside>
