@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Download } from 'lucide-react';
 import type { Notice } from '../../types/notice';
 import { formatDisplayDate, formatDisplayTime, downloadICS } from '../../utils/priorityEngine';
 import { Badge } from '../common/Modal';
@@ -9,16 +9,13 @@ interface CalendarViewProps {
 }
 
 export default function CalendarView({ notices }: CalendarViewProps) {
-  // Use today's month/year as initial state
   const [currentDate, setCurrentDate] = useState(() => {
-    // Current date from metadata or system
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
 
   const [selectedDateISO, setSelectedDateISO] = useState<string | null>(null);
 
-  // Map of notices by ISO date string
   const noticesByDate = useMemo(() => {
     const map = new Map<string, Notice[]>();
     for (const notice of notices) {
@@ -32,27 +29,19 @@ export default function CalendarView({ notices }: CalendarViewProps) {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
-  const prevMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-  };
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sun
+  const firstDayIndex = new Date(year, month, 1).getDay();
 
   const dayCells = useMemo(() => {
     const cells = [];
-    // Padding before first day
     for (let i = 0; i < firstDayIndex; i++) {
       cells.push({ dayNumber: null, iso: null });
     }
-    // Days in this month
     for (let d = 1; d <= daysInMonth; d++) {
       const mm = String(month + 1).padStart(2, '0');
       const dd = String(d).padStart(2, '0');
@@ -63,30 +52,30 @@ export default function CalendarView({ notices }: CalendarViewProps) {
   }, [year, month, firstDayIndex, daysInMonth]);
 
   const categoryColorDot: Record<Notice['category'], string> = {
-    'Academic': 'bg-blue-500',
-    'Placement': 'bg-purple-500',
-    'Events/Fest': 'bg-pink-500',
-    'Clubs': 'bg-emerald-500',
-    'Admin/Exam': 'bg-orange-500',
+    'Academic': 'bg-cyan-400',
+    'Placement': 'bg-purple-400',
+    'Events/Fest': 'bg-pink-400',
+    'Clubs': 'bg-emerald-400',
+    'Admin/Exam': 'bg-orange-400',
   };
 
   const selectedNotices = selectedDateISO ? noticesByDate.get(selectedDateISO) || [] : [];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-4">
+    <div className="glass-panel-elevated rounded-2xl p-5 space-y-4 text-slate-200">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="w-5 h-5 text-indigo-600" aria-hidden="true" />
-          <h2 className="text-base font-bold text-gray-900">
-            {monthName} {year}
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <CalendarIcon className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+          <h2 className="text-sm font-bold text-slate-100 tracking-wide uppercase">
+            {monthName} {year} Schedule Matrix
           </h2>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={prevMonth}
-            className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
+            className="p-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition"
             aria-label="Previous month"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -94,14 +83,14 @@ export default function CalendarView({ notices }: CalendarViewProps) {
           <button
             type="button"
             onClick={() => setCurrentDate(new Date())}
-            className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="px-3 py-1 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 border border-slate-700 rounded-lg transition"
           >
             Today
           </button>
           <button
             type="button"
             onClick={nextMonth}
-            className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
+            className="p-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition"
             aria-label="Next month"
           >
             <ChevronRight className="w-4 h-4" />
@@ -110,7 +99,7 @@ export default function CalendarView({ notices }: CalendarViewProps) {
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 pb-1">
+      <div className="grid grid-cols-7 text-center text-xs font-bold text-slate-400 pb-1">
         <span>Sun</span>
         <span>Mon</span>
         <span>Tue</span>
@@ -121,13 +110,13 @@ export default function CalendarView({ notices }: CalendarViewProps) {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1" role="grid" aria-label="Month calendar schedule">
+      <div className="grid grid-cols-7 gap-1.5" role="grid" aria-label="Month calendar schedule">
         {dayCells.map((cell, idx) => {
           if (!cell.dayNumber || !cell.iso) {
             return (
               <div
                 key={`empty-${idx}`}
-                className="h-20 bg-gray-50/50 rounded-lg p-1 border border-transparent"
+                className="h-20 bg-slate-950/30 rounded-xl border border-transparent"
                 aria-hidden="true"
               />
             );
@@ -143,36 +132,36 @@ export default function CalendarView({ notices }: CalendarViewProps) {
               key={cell.iso}
               type="button"
               onClick={() => setSelectedDateISO(cell.iso)}
-              className={`h-20 rounded-lg p-1.5 flex flex-col text-left transition border ${
+              className={`h-20 rounded-xl p-2 flex flex-col text-left transition border ${
                 isSelected
-                  ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20'
+                  ? 'border-indigo-400 bg-indigo-950/50 ring-2 ring-indigo-500/30'
                   : isToday
-                  ? 'border-indigo-300 bg-white'
-                  : 'border-gray-100 hover:border-gray-300 bg-white'
+                  ? 'border-indigo-500/60 bg-slate-900/90'
+                  : 'border-slate-800/80 hover:border-slate-700 bg-slate-950/80'
               }`}
-              aria-label={`${cell.dayNumber} ${monthName}, ${dayNotices.length} events`}
+              aria-label={`${cell.dayNumber} ${monthName}, ${dayNotices.length} notices`}
             >
               <div className="flex items-center justify-between w-full">
                 <span
-                  className={`text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center ${
-                    isToday ? 'bg-indigo-600 text-white font-bold' : 'text-gray-700'
+                  className={`text-xs font-bold rounded-lg w-5 h-5 flex items-center justify-center ${
+                    isToday ? 'bg-indigo-600 text-white' : 'text-slate-300'
                   }`}
                 >
                   {cell.dayNumber}
                 </span>
                 {dayNotices.length > 0 && (
-                  <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-100 px-1 rounded">
+                  <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-1.5 py-0.5 rounded">
                     {dayNotices.length}
                   </span>
                 )}
               </div>
 
               {/* Event previews in cell */}
-              <div className="mt-1 space-y-0.5 overflow-hidden w-full">
+              <div className="mt-1 space-y-1 overflow-hidden w-full">
                 {dayNotices.slice(0, 2).map((n) => (
                   <div
                     key={n.id}
-                    className="flex items-center gap-1 text-[10px] truncate text-gray-700"
+                    className="flex items-center gap-1.5 text-[10px] font-medium truncate text-slate-300"
                     title={n.title}
                   >
                     <span
@@ -183,7 +172,7 @@ export default function CalendarView({ notices }: CalendarViewProps) {
                   </div>
                 ))}
                 {dayNotices.length > 2 && (
-                  <span className="text-[9px] text-gray-400 block">
+                  <span className="text-[9px] text-slate-500 block">
                     +{dayNotices.length - 2} more
                   </span>
                 )}
@@ -195,28 +184,28 @@ export default function CalendarView({ notices }: CalendarViewProps) {
 
       {/* Selected Day Details Panel */}
       {selectedDateISO && (
-        <div className="pt-4 border-t border-gray-200 space-y-3" aria-live="polite">
+        <div className="pt-4 border-t border-slate-800 space-y-3 animate-in fade-in" aria-live="polite">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-900">
-              Notices for {formatDisplayDate(selectedDateISO)} ({selectedNotices.length})
+            <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wide">
+              Timeline for {formatDisplayDate(selectedDateISO)} ({selectedNotices.length} items)
             </h3>
             <button
               type="button"
               onClick={() => setSelectedDateISO(null)}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
+              className="text-xs text-slate-400 hover:text-slate-200 underline"
             >
-              Close Details
+              Hide Day
             </button>
           </div>
 
           {selectedNotices.length === 0 ? (
-            <p className="text-xs text-gray-500 py-2">No campus events or notices scheduled for this day.</p>
+            <p className="text-xs text-slate-400 py-2">No events scheduled for this calendar slot.</p>
           ) : (
             <div className="space-y-2">
               {selectedNotices.map((n) => (
                 <div
                   key={n.id}
-                  className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-start justify-between gap-3 text-xs"
+                  className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-start justify-between gap-3 text-xs"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -224,21 +213,21 @@ export default function CalendarView({ notices }: CalendarViewProps) {
                         className={`w-2 h-2 rounded-full ${categoryColorDot[n.category]}`}
                         aria-hidden="true"
                       />
-                      <span className="font-semibold text-gray-900 text-sm">{n.title}</span>
+                      <span className="font-bold text-slate-100 text-sm">{n.title}</span>
                       <Badge variant={n.urgency === 'Urgent' ? 'urgent' : 'upcoming'}>
                         {n.urgency}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-gray-600">
+                    <div className="flex items-center gap-4 text-slate-400">
                       {n.time && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
+                        <span className="flex items-center gap-1 font-mono text-slate-300">
+                          <Clock className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                           {formatDisplayTime(n.time)}
                         </span>
                       )}
                       {n.venue && (
                         <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
+                          <MapPin className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                           {n.venue}
                         </span>
                       )}
@@ -248,10 +237,11 @@ export default function CalendarView({ notices }: CalendarViewProps) {
                   <button
                     type="button"
                     onClick={() => downloadICS(n)}
-                    className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100 transition shrink-0"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition shrink-0"
                     aria-label={`Export ${n.title} to calendar`}
                   >
-                    Export .ics
+                    <Download className="w-3 h-3" />
+                    <span>.ics</span>
                   </button>
                 </div>
               ))}
@@ -262,4 +252,3 @@ export default function CalendarView({ notices }: CalendarViewProps) {
     </div>
   );
 }
-

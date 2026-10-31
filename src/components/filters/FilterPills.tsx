@@ -41,10 +41,10 @@ export default function FilterPills({
         <button
           type="button"
           onClick={() => onRelevantOnlyToggle(!relevantOnly)}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
             relevantOnly
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-              : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
+              ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-500/20'
+              : 'bg-slate-900/90 text-indigo-300 border-indigo-500/30 hover:bg-indigo-500/10'
           }`}
           aria-pressed={relevantOnly}
         >
@@ -52,7 +52,7 @@ export default function FilterPills({
           <span>Relevant to My Profile</span>
         </button>
 
-        <div className="h-4 w-px bg-gray-200 hidden sm:block mx-1" aria-hidden="true" />
+        <div className="h-4 w-px bg-slate-800 hidden sm:block mx-1" aria-hidden="true" />
 
         {/* Categories */}
         {CATEGORIES.map((cat) => {
@@ -62,14 +62,14 @@ export default function FilterPills({
               key={cat}
               type="button"
               onClick={() => onCategoryChange(cat)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
+              className={`px-3 py-1 rounded-xl text-xs font-semibold border transition ${
                 isActive
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-slate-100 text-slate-900 border-white shadow-xs font-bold'
+                  : 'bg-slate-900/80 text-slate-300 border-slate-700/80 hover:bg-slate-800 hover:text-white'
               }`}
               aria-pressed={isActive}
             >
-              {cat === 'All' ? 'All Categories' : cat}
+              {cat === 'All' ? 'All Domains' : cat}
             </button>
           );
         })}
@@ -78,18 +78,18 @@ export default function FilterPills({
           <button
             type="button"
             onClick={onResetFilters}
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-indigo-300 hover:bg-slate-800 rounded-xl transition"
             aria-label="Reset all filters"
           >
             <RotateCcw className="w-3 h-3" aria-hidden="true" />
-            <span>Reset filters</span>
+            <span>Reset</span>
           </button>
         )}
       </div>
 
       {/* Urgency Filter Pills */}
       <div className="flex flex-wrap items-center gap-1.5 text-xs" role="toolbar" aria-label="Notice urgency filters">
-        <span className="text-gray-500 font-medium mr-1 text-[11px]">Urgency:</span>
+        <span className="text-slate-400 font-semibold mr-1 text-[11px]">Timeline:</span>
         {URGENCIES.map((urg) => {
           const isActive = selectedUrgency === urg;
           return (
@@ -97,10 +97,10 @@ export default function FilterPills({
               key={urg}
               type="button"
               onClick={() => onUrgencyChange(urg)}
-              className={`px-2.5 py-0.5 rounded-md text-xs font-medium border transition ${
+              className={`px-2.5 py-0.5 rounded-lg text-xs font-bold border transition ${
                 isActive
-                  ? 'bg-gray-900 text-white border-gray-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-indigo-500 text-white border-indigo-400 shadow-xs'
+                  : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:text-slate-200'
               }`}
               aria-pressed={isActive}
             >
@@ -112,4 +112,3 @@ export default function FilterPills({
     </div>
   );
 }
-

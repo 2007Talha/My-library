@@ -3,8 +3,6 @@ import {
   extractLocal,
   parseDate,
   parseTime,
-  parseVenue,
-  classifyCategory,
   isCorrigendum,
   parseActionChecklist,
   assessVerificationConfidence,

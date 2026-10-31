@@ -1,4 +1,4 @@
-import { ArrowRight, RefreshCw, PlusCircle } from 'lucide-react';
+import { RefreshCw, PlusCircle } from 'lucide-react';
 import type { Notice } from '../../types/notice';
 import Modal from '../common/Modal';
 import { formatDisplayDate, formatDisplayTime } from '../../utils/priorityEngine';
@@ -30,7 +30,7 @@ export default function CorrigendumMergeModal({
       time: incomingNotice.time || existingNotice.time,
       actionChecklist: Array.from(new Set([...existingNotice.actionChecklist, ...incomingNotice.actionChecklist])),
       updatedBadge: true,
-      rawText: `${existingNotice.rawText}\n\n[UPDATE]: ${incomingNotice.rawText}`,
+      rawText: `${existingNotice.rawText}\n\n[CORRIGENDUM UPDATE]: ${incomingNotice.rawText}`,
     });
     onClose();
   };
@@ -44,56 +44,56 @@ export default function CorrigendumMergeModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Corrigendum / Notice Update Detected"
+      title="Notice Amendment / Corrigendum Detected"
       size="lg"
     >
-      <div className="space-y-4">
-        <p className="text-sm text-gray-600">
-          We noticed this notice appears to be an update or correction to an existing campus notice in your feed. Would you like to merge this update into the existing entry or add it as a new separate notice?
+      <div className="space-y-4 text-xs">
+        <p className="text-slate-300 leading-relaxed">
+          The incoming message updates an existing campus notice in your calendar feed. You can merge the revision into the existing card (updating venue, date, and time) or save it as a separate entry.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs">
-          {/* Existing notice info */}
-          <div className="space-y-2 p-3 bg-white rounded-lg border border-gray-200">
-            <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded font-semibold text-[10px]">
-              EXISTING NOTICE
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl">
+          {/* Existing notice */}
+          <div className="space-y-2 p-3 bg-slate-900 border border-slate-800 rounded-lg">
+            <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+              EXISTING NOTICE IN FEED
             </span>
-            <p className="font-bold text-gray-900 text-sm">{existingNotice.title}</p>
-            <div className="space-y-1 text-gray-600">
-              <p><span className="font-medium">Date:</span> {formatDisplayDate(existingNotice.date)}</p>
-              <p><span className="font-medium">Time:</span> {formatDisplayTime(existingNotice.time) || 'N/A'}</p>
-              <p><span className="font-medium">Venue:</span> {existingNotice.venue || 'Not specified'}</p>
+            <p className="font-bold text-slate-100 text-sm">{existingNotice.title}</p>
+            <div className="space-y-1 text-slate-400">
+              <p><span className="text-slate-300 font-semibold">Date:</span> {formatDisplayDate(existingNotice.date)}</p>
+              <p><span className="text-slate-300 font-semibold">Time:</span> {formatDisplayTime(existingNotice.time) || 'N/A'}</p>
+              <p><span className="text-slate-300 font-semibold">Venue:</span> {existingNotice.venue || 'Not specified'}</p>
             </div>
           </div>
 
-          {/* Incoming notice update */}
-          <div className="space-y-2 p-3 bg-indigo-50/50 rounded-lg border border-indigo-200">
-            <span className="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded font-semibold text-[10px]">
-              INCOMING UPDATE
+          {/* Incoming amendment */}
+          <div className="space-y-2 p-3 bg-indigo-950/40 border border-indigo-500/40 rounded-lg">
+            <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded">
+              INCOMING CORRIGENDUM
             </span>
-            <p className="font-bold text-indigo-950 text-sm">{incomingNotice.title}</p>
-            <div className="space-y-1 text-indigo-900">
-              <p><span className="font-medium">Date:</span> {formatDisplayDate(incomingNotice.date)}</p>
-              <p><span className="font-medium">Time:</span> {formatDisplayTime(incomingNotice.time) || 'N/A'}</p>
-              <p className="font-semibold text-indigo-700">
-                <span className="font-medium text-indigo-900">Venue:</span> {incomingNotice.venue || 'Not specified'}
+            <p className="font-bold text-indigo-100 text-sm">{incomingNotice.title}</p>
+            <div className="space-y-1 text-indigo-200">
+              <p><span className="text-indigo-300 font-semibold">Date:</span> {formatDisplayDate(incomingNotice.date)}</p>
+              <p><span className="text-indigo-300 font-semibold">Time:</span> {formatDisplayTime(incomingNotice.time) || 'N/A'}</p>
+              <p className="font-bold text-amber-300">
+                <span className="text-indigo-300 font-semibold">New Venue:</span> {incomingNotice.venue || 'Not specified'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-3 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-3 border-t border-slate-800">
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleAddNew}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition"
           >
             <PlusCircle className="w-3.5 h-3.5" aria-hidden="true" />
             Add as Separate Notice
@@ -101,14 +101,13 @@ export default function CorrigendumMergeModal({
           <button
             type="button"
             onClick={handleMerge}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-md shadow-indigo-500/20 transition"
           >
             <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
-            Merge & Update Existing
+            Merge & Update Existing Card
           </button>
         </div>
       </div>
     </Modal>
   );
 }
-

@@ -1,15 +1,16 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 py-4 mt-8" role="contentinfo">
-      <div className="max-w-7xl mx-auto px-4 text-center">
-        <p className="text-sm text-gray-500">
-          Campus Pulse — Intelligent Campus Notice Assistant
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          Built for PromptWars × CSSS | Data stored locally in your browser
-        </p>
+    <footer className="border-t border-slate-800/80 bg-slate-950/60 py-6 mt-12 text-xs text-slate-400" role="contentinfo">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-slate-200">Campus Pulse</span>
+          <span>•</span>
+          <span>Context-Aware Life Assistant</span>
+        </div>
+        <div className="text-slate-500 text-center sm:text-right">
+          Built for PromptWars × CSSS | 100% Client-Side Privacy Engine
+        </div>
       </div>
     </footer>
   );
 }
-

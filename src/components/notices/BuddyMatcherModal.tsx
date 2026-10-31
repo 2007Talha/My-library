@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, UserPlus, CheckCircle2, MessageSquare, Sparkles, Send } from 'lucide-react';
+import { Users, UserPlus, CheckCircle2, Sparkles, Send } from 'lucide-react';
 import type { Notice, BuddyProfile, StudentContext } from '../../types/notice';
 import Modal, { showToast } from '../common/Modal';
 
@@ -36,7 +36,7 @@ export default function BuddyMatcherModal({
     showToast(
       targetBuddy?.status === 'matched'
         ? `Disconnected from ${targetBuddy.name}`
-        : `Connected with ${targetBuddy?.name}! Contact shared in student portal.`,
+        : `Connected with ${targetBuddy?.name}! Contact coordinate saved.`,
       'success'
     );
   };
@@ -46,7 +46,7 @@ export default function BuddyMatcherModal({
     const name = userName.trim() || 'You';
     const note = newNote.trim();
     if (!note) {
-      showToast('Please enter what you are looking for (e.g., lab partner or carpool)', 'error');
+      showToast('Please specify what you need (e.g. lab partner or hackathon teammate)', 'error');
       return;
     }
 
@@ -69,69 +69,64 @@ export default function BuddyMatcherModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Attendance & Event Buddy Matcher"
+      title="Attendance & Lab Buddy Matcher"
       size="lg"
     >
       <div className="space-y-4">
         {/* Header notice snippet */}
-        <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 flex items-start justify-between gap-3 text-xs">
+        <div className="p-3.5 bg-slate-950/80 rounded-xl border border-indigo-500/30 flex items-start justify-between gap-3 text-xs">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-md inline-block mb-1">
-              {notice.category} Buddy Hub
+            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md inline-block mb-1">
+              {notice.category} Peer Hub
             </span>
-            <h3 className="text-sm font-bold text-gray-900 leading-snug">{notice.title}</h3>
-            <p className="text-gray-600 mt-0.5">
-              Targeted for: <span className="font-semibold text-indigo-800">{context.year} Year {context.branch}</span> batchmates
+            <h3 className="text-sm font-bold text-slate-100 leading-snug">{notice.title}</h3>
+            <p className="text-slate-400 mt-0.5">
+              Targeted for: <span className="font-bold text-indigo-300">{context.year} Year {context.branch}</span> batchmates
             </p>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-lg border border-indigo-200 text-indigo-800 font-semibold shrink-0">
-            <Users className="w-4 h-4 text-indigo-600" aria-hidden="true" />
-            <span>{buddies.length} available</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-700 text-indigo-300 font-bold shrink-0">
+            <Users className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+            <span>{buddies.length} peers</span>
           </div>
         </div>
-
-        {/* Info card */}
-        <p className="text-xs text-gray-600 leading-relaxed">
-          Pair up with students from your batch for mandatory laboratory sessions, group project submissions, placement preparation, or rideshare to off-campus hackathons.
-        </p>
 
         {/* Existing Buddies List */}
         <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
           {buddies.length === 0 ? (
-            <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-              <Users className="w-8 h-8 text-gray-400 mx-auto mb-1.5" />
-              <p className="text-xs font-semibold text-gray-700">No students seeking buddies yet</p>
-              <p className="text-[11px] text-gray-500">Be the first to post a study or lab partner request below!</p>
+            <div className="text-center py-6 bg-slate-950/40 rounded-xl border border-dashed border-slate-800">
+              <Users className="w-8 h-8 text-slate-600 mx-auto mb-1.5" />
+              <p className="text-xs font-bold text-slate-300">No batchmates registered yet</p>
+              <p className="text-[11px] text-slate-500">Post a request below to find lab or study partners.</p>
             </div>
           ) : (
             buddies.map((b) => (
               <div
                 key={b.id}
-                className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-indigo-200 transition shadow-xs gap-3"
+                className="flex items-center justify-between p-3.5 bg-slate-950/70 border border-slate-800 rounded-xl hover:border-slate-700 transition gap-3"
               >
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-900">{b.name}</span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md">
+                    <span className="text-xs font-bold text-slate-100">{b.name}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-300 rounded-md">
                       {b.year} Year {b.branch}
                     </span>
                     {b.status === 'matched' && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" aria-hidden="true" />
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" aria-hidden="true" />
                         Connected
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-600 italic truncate">{b.note}</p>
+                  <p className="text-xs text-slate-400 italic truncate">{b.note}</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => handleConnect(b.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition shrink-0 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition shrink-0 ${
                     b.status === 'matched'
-                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-xs'
+                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20'
                   }`}
                   aria-label={b.status === 'matched' ? `Disconnect with ${b.name}` : `Connect with ${b.name}`}
                 >
@@ -150,9 +145,9 @@ export default function BuddyMatcherModal({
         </div>
 
         {/* Post new request form */}
-        <form onSubmit={handlePostRequest} className="pt-3 border-t border-gray-200 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
-            <Sparkles className="w-4 h-4 text-indigo-600" aria-hidden="true" />
+        <form onSubmit={handlePostRequest} className="pt-3 border-t border-slate-800 space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+            <Sparkles className="w-4 h-4 text-indigo-400" aria-hidden="true" />
             <span>Post Your Buddy Request:</span>
           </div>
 
@@ -161,16 +156,16 @@ export default function BuddyMatcherModal({
               type="text"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              placeholder="Your name (optional)"
-              className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500"
+              placeholder="Your name"
+              className="px-3 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-400"
               aria-label="Your name"
             />
             <input
               type="text"
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
-              placeholder="e.g. Need lab partner for DSA / Carpool to fest"
-              className="sm:col-span-2 px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500"
+              placeholder="e.g. Need partner for OS Lab / Carpool to techfest"
+              className="sm:col-span-2 px-3 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-400"
               aria-label="Buddy request details"
             />
           </div>
@@ -178,7 +173,7 @@ export default function BuddyMatcherModal({
           <div className="flex justify-end pt-1">
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-500/20"
               aria-label="Post request"
             >
               <Send className="w-3.5 h-3.5" aria-hidden="true" />

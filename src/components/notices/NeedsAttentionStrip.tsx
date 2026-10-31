@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock, AlertCircle, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Clock, ChevronRight, Zap, Flame } from 'lucide-react';
 import type { Notice, ScheduleClash } from '../../types/notice';
 import { Badge } from '../common/Modal';
 import { formatDisplayTime, getCountdown } from '../../utils/priorityEngine';
@@ -15,14 +15,14 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
   if (urgentNotices.length === 0 && !hasClashes) {
     return (
       <section
-        className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl mx-4 mt-4 p-4"
+        className="glass-panel rounded-2xl p-4 border border-emerald-500/20 bg-emerald-950/20"
         aria-label="Status: all clear"
         aria-live="polite"
       >
-        <div className="flex items-center gap-2 text-green-700">
-          <Clock size={18} aria-hidden="true" />
-          <span className="font-medium">All Clear!</span>
-          <span className="text-sm text-green-600">No urgent items need your attention right now.</span>
+        <div className="flex items-center gap-2.5 text-emerald-300">
+          <Clock size={16} aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-wider">Campus Radar Clear</span>
+          <span className="text-xs text-emerald-400/80">• No urgent actions or schedule collisions detected for today.</span>
         </div>
       </section>
     );
@@ -30,58 +30,79 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
 
   return (
     <section
-      className="bg-gradient-to-r from-red-50 via-orange-50 to-amber-50 border border-red-200 rounded-xl mx-4 mt-4 p-4"
-      aria-label="Needs attention today"
+      className="glass-panel-elevated rounded-2xl p-5 border border-red-500/30 bg-gradient-to-r from-red-950/40 via-slate-900/90 to-amber-950/30 space-y-4"
+      aria-label="Needs attention today hero spotlight"
       aria-live="polite"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <AlertTriangle size={18} className="text-red-500" aria-hidden="true" />
-        <h2 className="font-semibold text-red-800">
-          Needs Attention Today
-        </h2>
-        <Badge variant="urgent">{urgentNotices.length} urgent</Badge>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/40 flex items-center justify-center">
+            <Flame size={18} className="text-red-400 animate-pulse" aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-wider text-red-200">
+              Needs Attention Today
+            </h2>
+            <p className="text-[11px] text-red-300/80">
+              High-priority events, submissions & 24h countdowns
+            </p>
+          </div>
+        </div>
+        <Badge variant="urgent">
+          {urgentNotices.length} Action Items
+        </Badge>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      {/* Cards list */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {urgentNotices.map(notice => (
           <div
             key={notice.id}
-            className="bg-white/80 rounded-lg p-3 border border-red-100 hover:border-red-300 transition-colors"
+            className="p-3.5 rounded-xl bg-slate-900/90 border border-red-500/30 hover:border-red-400 transition flex flex-col justify-between space-y-2"
           >
-            <div className="flex items-start gap-2">
-              <AlertCircle size={14} className="text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{notice.title}</p>
-                <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
-                  {notice.time && (
-                    <span className="flex items-center gap-1">
-                      <Clock size={10} aria-hidden="true" />
-                      {formatDisplayTime(notice.time)}
-                    </span>
-                  )}
-                  <span className="font-medium text-red-600">
-                    {getCountdown(notice.date)}
-                  </span>
-                </div>
-                {notice.venue && (
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">{notice.venue}</p>
-                )}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
+                  {notice.category}
+                </span>
+                <span className="text-[11px] font-bold text-red-400 flex items-center gap-1">
+                  <Zap size={10} />
+                  {getCountdown(notice.date)}
+                </span>
               </div>
+              <h3 className="text-xs font-bold text-slate-100 line-clamp-2 leading-snug">
+                {notice.title}
+              </h3>
+            </div>
+
+            <div className="text-[11px] text-slate-400 space-y-0.5 pt-1 border-t border-slate-800">
+              {notice.time && (
+                <div className="flex items-center gap-1 text-slate-300 font-semibold">
+                  <Clock size={11} className="text-slate-500" />
+                  <span>{formatDisplayTime(notice.time)}</span>
+                </div>
+              )}
+              {notice.venue && (
+                <p className="text-[10px] truncate text-slate-400">{notice.venue}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
 
+      {/* Schedule Clash Box */}
       {hasClashes && (
-        <div className="mt-3 bg-amber-100/60 rounded-lg p-3 border border-amber-200">
-          <div className="flex items-center gap-2 text-amber-800">
-            <AlertTriangle size={14} aria-hidden="true" />
-            <span className="text-sm font-semibold">Schedule Clash Detected!</span>
+        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
+          <div className="flex items-center gap-2 text-amber-300">
+            <AlertTriangle size={15} className="text-amber-400 animate-bounce" aria-hidden="true" />
+            <span className="text-xs font-bold uppercase tracking-wide">
+              Schedule Clash Detected ({clashes.length})
+            </span>
           </div>
           {clashes.map((clash, idx) => (
-            <p key={idx} className="text-xs text-amber-700 mt-1 flex items-center gap-1">
-              <ChevronRight size={10} aria-hidden="true" />
-              {clash.overlapDescription}
+            <p key={idx} className="text-xs text-amber-200/90 flex items-start gap-1.5 pl-1">
+              <ChevronRight size={12} className="text-amber-400 mt-0.5 shrink-0" aria-hidden="true" />
+              <span>{clash.overlapDescription}</span>
             </p>
           ))}
         </div>
@@ -89,4 +110,3 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
     </section>
   );
 }
-

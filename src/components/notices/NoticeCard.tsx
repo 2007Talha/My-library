@@ -66,11 +66,11 @@ export default function NoticeCard({
   };
 
   const borderLeftColor: Record<Notice['category'], string> = {
-    'Academic': 'border-l-blue-500',
-    'Placement': 'border-l-purple-500',
-    'Events/Fest': 'border-l-pink-500',
-    'Clubs': 'border-l-emerald-500',
-    'Admin/Exam': 'border-l-orange-500',
+    'Academic': 'border-l-cyan-500 shadow-cyan-500/5',
+    'Placement': 'border-l-purple-500 shadow-purple-500/5',
+    'Events/Fest': 'border-l-pink-500 shadow-pink-500/5',
+    'Clubs': 'border-l-emerald-500 shadow-emerald-500/5',
+    'Admin/Exam': 'border-l-orange-500 shadow-orange-500/5',
   };
 
   const visibleChecklist = showFullChecklist
@@ -79,10 +79,10 @@ export default function NoticeCard({
 
   return (
     <article
-      className={`bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden border-l-4 ${borderLeftColor[notice.category]}`}
+      className={`glass-panel-elevated rounded-2xl p-5 border border-slate-700/70 hover:border-slate-500/80 transition-all flex flex-col justify-between overflow-hidden border-l-4 ${borderLeftColor[notice.category]} group`}
       aria-label={`Notice: ${notice.title}`}
     >
-      <div className="p-5 space-y-3">
+      <div className="space-y-3.5">
         {/* Top Badges Row */}
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -91,7 +91,7 @@ export default function NoticeCard({
             </Badge>
 
             <Badge variant={urgencyVariantMap[notice.urgency]}>
-              <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
+              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" aria-hidden="true" />
               {notice.urgency}
             </Badge>
 
@@ -102,14 +102,14 @@ export default function NoticeCard({
             )}
 
             {isRelevant && (
-              <Badge variant="relevant" className="font-semibold">
-                <Sparkles className="w-3 h-3 text-green-700" aria-hidden="true" />
+              <Badge variant="relevant" className="font-bold">
+                <Sparkles className="w-3 h-3 text-indigo-400" aria-hidden="true" />
                 Relevant to You
               </Badge>
             )}
           </div>
 
-          <div className="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md">
+          <div className="text-[11px] font-mono font-bold px-2 py-0.5 bg-slate-800/90 text-indigo-300 rounded-md border border-slate-700">
             Score: {notice.priorityScore}
           </div>
         </div>
@@ -118,76 +118,76 @@ export default function NoticeCard({
         <div>
           {notice.verificationStatus === 'Official' ? (
             <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
               title={notice.verificationReason || 'Official Source Verified'}
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
-              Verified Official ({notice.verificationScore}%)
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+              Official Source ({notice.verificationScore}%)
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30"
               title={notice.verificationReason || 'Community Forward - Unverified'}
             >
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
               Community Forward ({notice.verificationScore}%)
             </span>
           )}
         </div>
 
-        {/* Title */}
+        {/* Title & Countdown */}
         <div>
-          <h3 className="text-base font-bold text-gray-900 leading-snug line-clamp-2">
+          <h3 className="text-sm font-bold text-slate-100 group-hover:text-indigo-200 transition line-clamp-2 leading-snug">
             {notice.title}
           </h3>
           {notice.date && (
-            <p className="text-xs font-medium text-indigo-600 mt-0.5">
-              {getCountdown(notice.date)}
+            <p className="text-xs font-semibold text-indigo-400 mt-1 flex items-center gap-1">
+              <span>{getCountdown(notice.date)}</span>
             </p>
           )}
         </div>
 
         {/* Attendance Risk Banner if applicable */}
         {isAttendanceRisk && (
-          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-xs text-red-900 font-semibold animate-pulse">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" aria-hidden="true" />
-            <span>⚠️ High Risk Alert: Mandatory lab/class attendance required (&lt;75%)</span>
+          <div className="p-2.5 bg-red-950/60 border border-red-500/40 rounded-xl flex items-center gap-2 text-xs text-red-300 font-bold attendance-alert-pulse">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" aria-hidden="true" />
+            <span>⚠️ High Risk: Mandatory attendance required (&lt;75%)</span>
           </div>
         )}
 
         {/* Schedule Clash Alert if applicable */}
         {isClashing && (
-          <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-xs text-amber-900 font-semibold">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />
+          <div className="p-2.5 bg-amber-950/60 border border-amber-500/40 rounded-xl flex items-center gap-2 text-xs text-amber-300 font-bold">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" aria-hidden="true" />
             <span>Time Overlap: 2 items clash today</span>
           </div>
         )}
 
         {/* Metadata grid */}
-        <div className="space-y-1.5 text-xs text-gray-600">
+        <div className="space-y-1.5 text-xs text-slate-300">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
             <span>{formatDisplayDate(notice.date)}</span>
           </div>
 
           {notice.time && (
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
+              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
               <span>{formatDisplayTime(notice.time)}</span>
             </div>
           )}
 
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-gray-400 shrink-0" aria-hidden="true" />
-            <span className={notice.venue ? 'truncate' : 'italic text-gray-400'}>
+            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
+            <span className={notice.venue ? 'truncate' : 'italic text-slate-500'}>
               {notice.venue || 'Venue TBD / Not specified'}
             </span>
           </div>
         </div>
 
         {/* Target Audience */}
-        <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-1 text-[11px] text-gray-500">
-          <span className="font-medium text-gray-700">Target:</span>
+        <div className="pt-2 border-t border-slate-800 flex flex-wrap gap-1 text-[11px] text-slate-400">
+          <span className="font-bold text-slate-300">Target:</span>
           <span>
             {notice.targetBranches.includes('All') ? 'All Branches' : notice.targetBranches.join(', ')}
           </span>
@@ -199,10 +199,10 @@ export default function NoticeCard({
 
         {/* Checklist */}
         {notice.actionChecklist.length > 0 && (
-          <div className="pt-2 border-t border-gray-100">
+          <div className="pt-2 border-t border-slate-800">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-gray-700">Prerequisites & Action Checklist:</span>
-              <span className="text-[11px] text-gray-500">
+              <span className="text-[11px] font-bold text-slate-300">Prerequisites & Actions:</span>
+              <span className="text-[10px] font-mono text-slate-400">
                 {checkedItems.length}/{notice.actionChecklist.length} done
               </span>
             </div>
@@ -214,18 +214,18 @@ export default function NoticeCard({
                     <button
                       type="button"
                       onClick={() => onToggleChecklistItem(notice.id, item)}
-                      className="mt-0.5 text-indigo-600 hover:text-indigo-800 transition focus:outline-none"
+                      className="mt-0.5 text-indigo-400 hover:text-indigo-300 transition focus:outline-none"
                       aria-label={isChecked ? `Mark "${item}" incomplete` : `Mark "${item}" complete`}
                     >
                       {isChecked ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
                       ) : (
-                        <Circle className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
+                        <Circle className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                       )}
                     </button>
                     <span
                       className={`text-xs ${
-                        isChecked ? 'line-through text-gray-400' : 'text-gray-700'
+                        isChecked ? 'line-through text-slate-500' : 'text-slate-200'
                       }`}
                     >
                       {item}
@@ -239,7 +239,7 @@ export default function NoticeCard({
               <button
                 type="button"
                 onClick={() => setShowFullChecklist(!showFullChecklist)}
-                className="mt-1.5 flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-medium"
+                className="mt-1.5 flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold"
               >
                 {showFullChecklist ? (
                   <>
@@ -259,16 +259,16 @@ export default function NoticeCard({
       </div>
 
       {/* Card Footer Actions */}
-      <div className="p-3 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+      <div className="p-3 bg-slate-950/60 border-t border-slate-800 rounded-b-xl flex flex-wrap items-center justify-between gap-2 mt-3">
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => downloadICS(notice)}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:ring-indigo-500 transition"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition"
             title="Export to Calendar (.ics)"
             aria-label="Export to Calendar (.ics)"
           >
-            <Download className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" />
+            <Download className="w-3 h-3 text-slate-400" aria-hidden="true" />
             <span>.ics</span>
           </button>
 
@@ -276,11 +276,11 @@ export default function NoticeCard({
           <button
             type="button"
             onClick={() => onOpenBuddyMatcher(notice)}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 focus:ring-2 focus:ring-purple-500 transition"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-purple-300 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 rounded-lg transition"
             title="Find or match with an attendance / project buddy"
             aria-label={`Open buddy matcher for ${notice.title}`}
           >
-            <Users className="w-3.5 h-3.5 text-purple-600" aria-hidden="true" />
+            <Users className="w-3 h-3 text-purple-400" aria-hidden="true" />
             <span>Buddies {notice.buddies?.length ? `(${notice.buddies.length})` : ''}</span>
           </button>
 
@@ -289,10 +289,10 @@ export default function NoticeCard({
               href={notice.registrationLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 focus:ring-2 focus:ring-indigo-500 transition"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-cyan-300 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 rounded-lg transition"
               aria-label={`Open registration link for ${notice.title}`}
             >
-              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+              <ExternalLink className="w-3 h-3" aria-hidden="true" />
               <span>Register</span>
             </a>
           )}
@@ -301,7 +301,7 @@ export default function NoticeCard({
         <button
           type="button"
           onClick={() => onDeleteNotice(notice.id)}
-          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+          className="p-1 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
           title="Delete notice"
           aria-label={`Delete notice: ${notice.title}`}
         >

@@ -1,4 +1,4 @@
-import type { Notice, SampleInput, DemoPreset, Branch, Year } from '../types/notice';
+import type { Notice, SampleInput, DemoPreset } from '../types/notice';
 
 function daysFromNow(n: number): string {
   const d = new Date();

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -43,25 +43,27 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
-      <div className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col animate-in fade-in`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      <div className={`bg-slate-900 border border-slate-700/80 text-slate-100 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col overflow-hidden`}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/80">
+          <h2 className="text-base font-bold text-slate-100 tracking-tight flex items-center gap-2">
+            {title}
+          </h2>
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+            className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-100 transition"
             aria-label="Close dialog"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1">
+        <div className="p-5 overflow-y-auto flex-1 text-slate-200">
           {children}
         </div>
       </div>
@@ -78,21 +80,21 @@ interface BadgeProps {
 }
 
 const BADGE_STYLES: Record<BadgeProps['variant'], string> = {
-  urgent: 'bg-red-100 text-red-800 border-red-200',
-  upcoming: 'bg-amber-100 text-amber-800 border-amber-200',
-  expired: 'bg-gray-100 text-gray-600 border-gray-200',
-  academic: 'bg-blue-100 text-blue-800 border-blue-200',
-  placement: 'bg-purple-100 text-purple-800 border-purple-200',
-  events: 'bg-pink-100 text-pink-800 border-pink-200',
-  clubs: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  admin: 'bg-orange-100 text-orange-800 border-orange-200',
-  relevant: 'bg-green-100 text-green-800 border-green-200',
-  updated: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+  urgent: 'bg-red-500/15 text-red-400 border-red-500/30',
+  upcoming: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  expired: 'bg-slate-700/40 text-slate-400 border-slate-600/30',
+  academic: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+  placement: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  events: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
+  clubs: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  admin: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  relevant: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-xs',
+  updated: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
 };
 
 export function Badge({ variant, children, className = '' }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${BADGE_STYLES[variant]} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${BADGE_STYLES[variant]} ${className}`}>
       {children}
     </span>
   );
@@ -107,26 +109,30 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
   return (
-    <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-0.5" role="tablist" aria-label="View mode">
+    <div className="inline-flex rounded-xl border border-slate-700/80 bg-slate-900/90 p-1" role="tablist" aria-label="View mode">
       <button
         role="tab"
         aria-selected={view === 'grid'}
         onClick={() => onViewChange('grid')}
-        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-          view === 'grid' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
+          view === 'grid'
+            ? 'bg-indigo-600 text-white shadow-md'
+            : 'text-slate-400 hover:text-slate-200'
         }`}
       >
-        Card Grid
+        Card Feed
       </button>
       <button
         role="tab"
         aria-selected={view === 'calendar'}
         onClick={() => onViewChange('calendar')}
-        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-          view === 'calendar' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
+          view === 'calendar'
+            ? 'bg-indigo-600 text-white shadow-md'
+            : 'text-slate-400 hover:text-slate-200'
         }`}
       >
-        Calendar
+        Calendar Schedule
       </button>
     </div>
   );
@@ -155,7 +161,7 @@ export function ToastContainer() {
       setToasts(prev => [...prev, toast]);
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== toast.id));
-      }, 3000);
+      }, 3500);
     };
     toastListeners.push(listener);
     return () => { toastListeners = toastListeners.filter(l => l !== listener); };
@@ -167,26 +173,44 @@ export function ToastContainer() {
 
   if (toasts.length === 0) return null;
 
-  const typeStyles = {
-    success: 'bg-green-50 text-green-800 border-green-200',
-    error: 'bg-red-50 text-red-800 border-red-200',
-    info: 'bg-blue-50 text-blue-800 border-blue-200',
+  const typeConfig = {
+    success: {
+      border: 'border-emerald-500/40 bg-slate-900/95 text-emerald-300',
+      icon: <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />,
+    },
+    error: {
+      border: 'border-red-500/40 bg-slate-900/95 text-red-300',
+      icon: <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />,
+    },
+    info: {
+      border: 'border-indigo-500/40 bg-slate-900/95 text-indigo-300',
+      icon: <Info className="w-4 h-4 text-indigo-400 shrink-0" />,
+    },
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2" aria-live="polite">
-      {toasts.map(toast => (
-        <div
-          key={toast.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg ${typeStyles[toast.type]}`}
-        >
-          <span className="text-sm font-medium">{toast.message}</span>
-          <button onClick={() => removeToast(toast.id)} className="ml-2 hover:opacity-70" aria-label="Dismiss notification">
-            <X size={14} />
-          </button>
-        </div>
-      ))}
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-auto" aria-live="polite">
+      {toasts.map(toast => {
+        const config = typeConfig[toast.type];
+        return (
+          <div
+            key={toast.id}
+            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md animate-in slide-in-from-bottom-2 ${config.border}`}
+          >
+            <div className="flex items-center gap-2.5 text-xs font-semibold">
+              {config.icon}
+              <span>{toast.message}</span>
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="p-1 text-slate-400 hover:text-slate-200 transition"
+              aria-label="Dismiss notification"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }
-

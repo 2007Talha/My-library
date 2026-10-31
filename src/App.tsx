@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Sparkles, HelpCircle } from 'lucide-react';
+import { Sparkles, BrainCircuit } from 'lucide-react';
 import type { StudentContext, Category, UrgencyFilter, Notice, ViewMode } from './types/notice';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNotices } from './hooks/useNotices';
@@ -105,51 +105,54 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 bg-grid-pattern selection:bg-indigo-500 selection:text-white">
       {/* Header */}
       <Header
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         onResetData={handleResetAllData}
       />
 
-      {/* Student Profile Context Switcher */}
+      {/* Student Identity Deck & Attendance Bar */}
       <StudentContextBar
         context={context}
         onContextChange={(newContext) => {
           setContext(newContext);
-          showToast(`Profile updated: ${newContext.year} Year ${newContext.branch}`, 'info');
+          showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
         }}
       />
 
       {/* Main Content Area */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Hero Spotlight: Needs Attention Today + Clashes */}
         <NeedsAttentionStrip notices={notices} clashes={clashes} />
 
-        {/* Top Action Bar: AI Digest Button */}
-        <section className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-100 rounded-xl p-4 shadow-xs">
-          <div>
-            <h2 className="text-base font-bold text-indigo-950 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-600" aria-hidden="true" />
-              Campus Life Assistant
-            </h2>
-            <p className="text-xs text-indigo-700 mt-0.5">
-              Filtered & prioritized for <span className="font-semibold">{context.year} Year {context.branch}</span> ({context.focusMode})
+        {/* Action Hero Bar: AI Weekly Digest Co-Pilot */}
+        <section className="glass-panel-elevated rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border border-indigo-500/30 bg-gradient-to-r from-indigo-950/50 via-slate-900 to-purple-950/40">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <h2 className="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
+                <BrainCircuit className="w-4 h-4 text-cyan-400" aria-hidden="true" />
+                AI Context-Aware Executive Dispatch
+              </h2>
+            </div>
+            <p className="text-xs text-slate-300">
+              Live intelligence indexed for <strong className="text-indigo-300">{context.year} Year {context.branch}</strong> (Focus: {context.focusMode})
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => setIsDigestOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition cursor-pointer"
             aria-label="Generate weekly executive digest"
           >
-            <Sparkles className="w-4 h-4" aria-hidden="true" />
+            <Sparkles className="w-4 h-4 text-white" aria-hidden="true" />
             <span>What do I need to know this week?</span>
           </button>
         </section>
 
-        {/* Smart Input Area with 4 Demo Presets */}
+        {/* Smart Input & OCR Extractor Terminal */}
         <SmartInputArea
           onNoticeExtracted={handleNoticeExtracted}
           apiKey={apiKey}
@@ -157,7 +160,7 @@ export default function App() {
         />
 
         {/* Search, Filter & View Controls */}
-        <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-4" aria-label="Notice search and view controls">
+        <section className="glass-panel rounded-2xl p-4 space-y-4" aria-label="Notice search and view controls">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <SearchBar
               value={searchQuery}
@@ -182,7 +185,7 @@ export default function App() {
           />
         </section>
 
-        {/* Organized View (Card Grid OR Calendar) */}
+        {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
         {viewMode === 'grid' ? (
           <NoticeGrid
             notices={filteredNotices}
@@ -192,7 +195,7 @@ export default function App() {
             onToggleChecklistItem={toggleChecklistItem}
             onDeleteNotice={(id) => {
               deleteNotice(id);
-              showToast('Notice removed', 'info');
+              showToast('Notice archived from feed', 'info');
             }}
             onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
           />
@@ -229,7 +232,7 @@ export default function App() {
         existingNotice={corrigendumState.existing}
         onMerge={(existingId, updates) => {
           updateNotice(existingId, updates);
-          showToast('Existing notice updated with corrigendum details!', 'success');
+          showToast('Existing card updated with corrigendum details!', 'success');
         }}
         onAddNew={(notice) => {
           addNotice(notice);
