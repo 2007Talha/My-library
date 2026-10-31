@@ -324,4 +324,97 @@ describe('My Library: Security & Sanitization', () => {
     expect(validateUrl('javascript:alert(document.cookie)')).toBeNull();
     expect(validateUrl('data:text/html,<script>evil()</script>')).toBeNull();
   });
+
+  it('14. accurately parses WhatsApp placement circular without false-positive branches', () => {
+    const raw = `
+***URGENT*** 🚨🚨🚨
+*FORWARDED AS RECEIVED*
+PLACEMENT CELL CIRCULAR
+TCS NQT registration is CLOSING TOMORROW!! 
+All 3rd and 4th year CSE and ECE students MUST register before tomorrow 5 PM.
+Date: 15/11/2026
+Time: 10:00 AM
+Venue: Seminar Hall A, Main Block
+Prerequisites:
+- Bring your laptop (fully charged)
+- Carry 2 copies of updated resume
+- College ID card is MANDATORY
+- Register here: https://tcs.com/nqt-register
+DO NOT MISS THIS!! Your placement eligibility depends on it!!
+    `;
+    const res = extractLocal(raw);
+    expect(res.title).toContain('TCS NQT');
+    expect(res.category).toBe('Placement');
+    expect(res.date).toBe('2026-11-15');
+    expect(res.time).toBe('10:00');
+    expect(res.venue).toBe('Seminar Hall A, Main Block');
+    expect(res.targetBranches).toContain('CSE');
+    expect(res.targetBranches).toContain('ECE');
+    expect(res.targetBranches).not.toContain('ME'); // Verify no false positive ME from "placement" or "time"
+    expect(res.targetBranches).not.toContain('CE'); // Verify no false positive CE from "officer"
+    expect(res.registrationLink).toBe('https://tcs.com/nqt-register');
+  });
+
+  it('15. accurately extracts Hackathon poster text with category and registration link', () => {
+    const raw = `
+🏆 TECHFEST 2026 - MEGA 24-HR HACKATHON 🏆
+ALL BRANCHES | ALL YEARS WELCOME!
+📅 Date: 20/12/2026
+⏰ Time: 9:00 AM - 9:00 PM (Marathon session!)
+📍 Venue: Main Auditorium + Innovation Labs
+PRIZES WORTH ₹1,00,000! 🎉
+How to participate:
+1. Form a team of 2-4 members or connect with a buddy
+2. Register on https://unstop.com/hackathons/techfest2026
+3. Bring your own laptops and chargers
+    `;
+    const res = extractLocal(raw);
+    expect(res.title).toContain('TECHFEST 2026');
+    expect(res.category).toBe('Events/Fest');
+    expect(res.date).toBe('2026-12-20');
+    expect(res.time).toBe('09:00');
+    expect(res.venue).toBe('Main Auditorium + Innovation Labs');
+    expect(res.targetBranches).toEqual(['All']);
+    expect(res.registrationLink).toBe('https://unstop.com/hackathons/techfest2026');
+  });
+
+  it('16. prioritizes updated venue over previous venue in corrigendum circulars', () => {
+    const raw = `
+CORRIGENDUM / AMENDMENT NOTICE
+REF NO: COE/EXAM/REV/2026/88
+Subject: Change in Examination Room for Mid-Semester Lab Exams
+This is to notify all 2nd and 3rd Year CSE students that the venue for the Data Structures practical examination has been CHANGED.
+Previous Venue: Room 301, Block A
+Updated Venue: Room 105, Block B
+Date: 12/11/2026
+Time: 2:00 PM - 4:00 PM
+- Controller of Examinations (coe@college.ac.in)
+    `;
+    const res = extractLocal(raw);
+    expect(res.title).toBe('Change in Examination Room for Mid-Semester Lab Exams');
+    expect(res.isCorrigendum).toBe(true);
+    expect(res.venue).toBe('Room 105, Block B');
+    expect(res.category).toBe('Admin/Exam');
+    expect(res.time).toBe('14:00');
+    expect(res.date).toBe('2026-11-12');
+  });
+
+  it('17. parses club orientation email with Google Form RSVP', () => {
+    const raw = `
+Subject: Welcome to the Coding Club! 🎉 Orientation this Friday
+Hey everyone!
+Our orientation session is happening this week:
+📅 Date: 18/11/2026
+🕐 Time: 4:30 PM onwards
+📍 Venue: Computer Lab 3, CS Block
+RSVP form: https://forms.google.com/coding-club-2026
+    `;
+    const res = extractLocal(raw);
+    expect(res.title).toContain('Welcome to the Coding Club');
+    expect(res.category).toBe('Clubs');
+    expect(res.date).toBe('2026-11-18');
+    expect(res.time).toBe('16:30');
+    expect(res.venue).toBe('Computer Lab 3, CS Block');
+    expect(res.registrationLink).toBe('https://forms.google.com/coding-club-2026');
+  });
 });

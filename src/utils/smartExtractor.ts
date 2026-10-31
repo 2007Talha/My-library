@@ -31,35 +31,9 @@ function getNextDayOfWeek(dayIndex: number, fromDate: Date): Date {
   return result;
 }
 
-export function parseDate(text: string): string {
-  const lower = text.toLowerCase();
+function extractDateFromString(str: string): string {
+  const lower = str.toLowerCase();
   const today = new Date();
-
-  // "today"
-  if (/\btoday\b/.test(lower)) return toISO(today);
-
-  // "tomorrow"
-  if (/\btomorrow\b/.test(lower)) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + 1);
-    return toISO(d);
-  }
-
-  // "day after tomorrow"
-  if (/\bday\s+after\s+tomorrow\b/.test(lower)) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + 2);
-    return toISO(d);
-  }
-
-  // "this <dayname>" / "next <dayname>"
-  for (const [name, idx] of Object.entries(DAY_NAMES)) {
-    const thisPattern = new RegExp(`\\bthis\\s+${name}\\b`, 'i');
-    const nextPattern = new RegExp(`\\bnext\\s+${name}\\b`, 'i');
-    if (thisPattern.test(lower) || nextPattern.test(lower)) {
-      return toISO(getNextDayOfWeek(idx, today));
-    }
-  }
 
   // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
   const dmy = lower.match(/\b(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})\b/);
@@ -78,20 +52,18 @@ export function parseDate(text: string): string {
     return `${iso[1]}-${iso[2]}-${iso[3]}`;
   }
 
-  // "Month DD" or "DD Month" with optional year
+  // "Month DD, YYYY" or "DD Month YYYY"
   for (const [name, idx] of Object.entries(MONTHS)) {
-    // "October 31" or "October 31, 2026"
     const monthFirst = new RegExp(`\\b${name}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:[,\\s]+(\\d{4}))?\\b`, 'i');
-    const m1 = text.match(monthFirst);
+    const m1 = str.match(monthFirst);
     if (m1) {
       const day = parseInt(m1[1], 10);
       const year = m1[2] ? parseInt(m1[2], 10) : today.getFullYear();
       return toISO(new Date(year, idx, day));
     }
 
-    // "31 October" or "31st October 2026"
     const dayFirst = new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+${name}\\.?(?:[,\\s]+(\\d{4}))?\\b`, 'i');
-    const m2 = text.match(dayFirst);
+    const m2 = str.match(dayFirst);
     if (m2) {
       const day = parseInt(m2[1], 10);
       const year = m2[2] ? parseInt(m2[2], 10) : today.getFullYear();
@@ -99,7 +71,62 @@ export function parseDate(text: string): string {
     }
   }
 
-  // Standalone day name without "this"/"next" — assume this coming one
+  return '';
+}
+
+export function parseDate(text: string): string {
+  const today = new Date();
+  const lower = text.toLowerCase();
+
+  // 1. Look for explicit labeled date lines first: "Date: ...", "📅 Date: ...", "Date of Exam: ..."
+  const dateLabelMatch = text.match(/(?:📅\s*)?(?:date\s+of\s+(?:exam|examination|event)|date|when|scheduled\s+on|held\s+on)\s*[:–—-]\s*([^\n\r,]+)/i);
+  if (dateLabelMatch) {
+    const fromLabel = extractDateFromString(dateLabelMatch[1]);
+    if (fromLabel) return fromLabel;
+
+    // Check if the labeled line mentions "tomorrow" or "today"
+    const labelLower = dateLabelMatch[1].toLowerCase();
+    if (/\btomorrow\b/.test(labelLower)) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + 1);
+      return toISO(d);
+    }
+    if (/\btoday\b/.test(labelLower)) {
+      return toISO(today);
+    }
+  }
+
+  // 2. Look for any full numeric or month dates anywhere in the text
+  const fullDate = extractDateFromString(text);
+  if (fullDate) return fullDate;
+
+  // 3. Relative day phrases: "this Friday", "next Monday"
+  for (const [name, idx] of Object.entries(DAY_NAMES)) {
+    const thisPattern = new RegExp(`\\bthis\\s+${name}\\b`, 'i');
+    const nextPattern = new RegExp(`\\bnext\\s+${name}\\b`, 'i');
+    if (thisPattern.test(lower) || nextPattern.test(lower)) {
+      return toISO(getNextDayOfWeek(idx, today));
+    }
+  }
+
+  // 4. Relative words: "tomorrow", "day after tomorrow", "today" (ONLY if no explicit date above)
+  if (/\bday\s+after\s+tomorrow\b/.test(lower)) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + 2);
+    return toISO(d);
+  }
+
+  if (/\btomorrow\b/.test(lower)) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + 1);
+    return toISO(d);
+  }
+
+  if (/\btoday\b/.test(lower)) {
+    return toISO(today);
+  }
+
+  // 5. Standalone day name: "Orientation this Friday" or "Friday"
   for (const [name, idx] of Object.entries(DAY_NAMES)) {
     if (name.length >= 3 && new RegExp(`\\b${name}\\b`, 'i').test(lower)) {
       return toISO(getNextDayOfWeek(idx, today));
@@ -111,9 +138,9 @@ export function parseDate(text: string): string {
 
 // ─── Time Parsing ────────────────────────────────────────────────
 
-export function parseTime(text: string): string {
-  // "10:30 AM", "2:00PM", "14:30", "10 AM"
-  const time12 = text.match(/\b(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
+function extractTimeFromString(str: string): string {
+  // 12h format with minutes: "10:30 AM", "2:00 PM", "9:00 AM - 5:00 PM"
+  const time12 = str.match(/\b(\d{1,2}):(\d{2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
   if (time12) {
     let hours = parseInt(time12[1], 10);
     const mins = time12[2];
@@ -123,8 +150,8 @@ export function parseTime(text: string): string {
     return `${String(hours).padStart(2, '0')}:${mins}`;
   }
 
-  // "10 AM" / "2 PM" without minutes
-  const timeSimple = text.match(/\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
+  // 12h format without minutes: "10 AM", "2 PM"
+  const timeSimple = str.match(/\b(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)\b/i);
   if (timeSimple) {
     let hours = parseInt(timeSimple[1], 10);
     const period = timeSimple[2].toLowerCase().replace(/\./g, '');
@@ -133,13 +160,25 @@ export function parseTime(text: string): string {
     return `${String(hours).padStart(2, '0')}:00`;
   }
 
-  // 24h format "14:30" or "09:00"
-  const time24 = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+  // 24h format: "14:30" or "09:00"
+  const time24 = str.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
   if (time24) {
     return `${String(parseInt(time24[1], 10)).padStart(2, '0')}:${time24[2]}`;
   }
 
   return '';
+}
+
+export function parseTime(text: string): string {
+  // 1. Look for labeled time line: "Time: 10:00 AM", "⏰ Time: 9:00 AM - 9:00 PM"
+  const timeLabel = text.match(/(?:⏰\s*)?(?:time|timings|timing|starts?\s+at|begins?\s+at)\s*[:–—-]\s*([^\n\r]+)/i);
+  if (timeLabel) {
+    const parsed = extractTimeFromString(timeLabel[1]);
+    if (parsed) return parsed;
+  }
+
+  // 2. Fall back to searching entire text
+  return extractTimeFromString(text);
 }
 
 // ─── Venue Extraction ────────────────────────────────────────────
@@ -154,24 +193,39 @@ const VENUE_KEYWORDS = [
 ];
 
 export function parseVenue(text: string): string {
+  // 1. Check for Corrigendum / Updated Venue FIRST (so old venue isn't chosen)
+  const updatedVenueMatch = text.match(/(?:updated|new|revised)\s*(?:venue|location|room|hall)\s*[:–—-]\s*(.+?)(?:\n|$|,\s*(?:date|time|on))/i);
+  if (updatedVenueMatch) {
+    return cleanVenueString(updatedVenueMatch[1]);
+  }
+
+  // 2. Explicit labeled venue: "Venue: Seminar Hall A, Main Block", "📍 Venue: ..."
+  const venueLabel = text.match(/(?:📍\s*)?(?:venue|location|place|where|held\s+at)\s*[:–—-]\s*(.+?)(?:\n|$|,\s*(?:date|time|on))/i);
+  if (venueLabel) {
+    return cleanVenueString(venueLabel[1]);
+  }
+
+  // 3. Fall back to keyword scan with surrounding words
   const lower = text.toLowerCase();
-
-  // Match "Venue: <something>" or "Location: <something>" or "Place: <something>" or "Where: <something>"
-  const venueLabel = text.match(/(?:venue|location|place|where)\s*[:–—-]\s*(.+?)(?:\n|$|,\s*(?:date|time|on))/i);
-  if (venueLabel) return venueLabel[1].trim().slice(0, 100);
-
-  // Match known venue keywords with surrounding context
   for (const keyword of VENUE_KEYWORDS) {
     const regex = new RegExp(`((?:\\w+\\s+)?${keyword}(?:\\s+(?:no\\.?|number)?\\s*\\w*(?:\\s+\\w+){0,3}))`, 'i');
     const match = lower.match(regex);
     if (match) {
-      // Get the original case version
       const startIdx = lower.indexOf(match[0]);
-      return text.slice(startIdx, startIdx + match[0].length).trim().slice(0, 100);
+      return cleanVenueString(text.slice(startIdx, startIdx + match[0].length));
     }
   }
 
   return '';
+}
+
+function cleanVenueString(str: string): string {
+  return str
+    .replace(/^[\*_~`\s]+/, '')
+    .replace(/[\*_~`\s]+$/, '')
+    .replace(/[📍🏢🏛️🗺️]+/g, '')
+    .trim()
+    .slice(0, 100);
 }
 
 // ─── Category Classification ─────────────────────────────────────
@@ -182,20 +236,20 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
     'aptitude', 'resume', 'cv', 'ctc', 'lpa', 'package', 'offer letter',
     'pre-placement', 'ppt', 'company', 'nqt', 'off-campus', 'on-campus',
     'dream company', 'mass recruit', 'walk-in', 'shortlist', 'selected',
+    'tcs', 'infosys', 'wipro', 'cognizant', 'amazon', 'google', 'microsoft',
   ],
   'Admin/Exam': [
     'exam', 'mid-sem', 'midsem', 'end-sem', 'endsem', 'seating',
     'admit card', 'hall ticket', 'marks', 'result', 'grade',
     'attendance', 'revaluation', 'supplementary', 'backlog', 'cgpa',
     'sgpa', 'corrigendum', 'room change', 'schedule change',
-    'notice', 'circular', 'academic calendar', 'fee', 'scholarship',
+    'circular', 'academic calendar', 'fee', 'scholarship', 'controller of examinations',
   ],
   'Events/Fest': [
     'hackathon', 'fest', 'festival', 'cultural', 'technical', 'tech fest',
-    'competition', 'contest', 'workshop', 'webinar', 'seminar',
+    'techfest', 'competition', 'contest', 'workshop', 'webinar', 'seminar',
     'conference', 'summit', 'conclave', 'ideathon', 'makeathon',
-    'coding challenge', 'quiz', 'debate', 'event', 'registration open',
-    'register now', 'participate',
+    'coding challenge', 'quiz', 'debate', 'cash prize', 'prizes worth',
   ],
   'Clubs': [
     'club', 'society', 'orientation', 'induction', 'recruitment drive',
@@ -207,7 +261,7 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
     'lecture', 'class', 'tutorial', 'assignment', 'project',
     'submission', 'deadline', 'syllabus', 'timetable', 'faculty',
     'professor', 'lab', 'practical', 'viva', 'presentation',
-    'research', 'paper', 'thesis', 'dissertation', 'seminar',
+    'research', 'paper', 'thesis', 'dissertation',
   ],
 };
 
@@ -224,10 +278,17 @@ export function classifyCategory(text: string): Category {
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS) as [Category, string[]][]) {
     for (const kw of keywords) {
       if (lower.includes(kw)) {
-        scores[category] += kw.split(' ').length; // Multi-word matches score higher
+        // Multi-word matches score higher
+        scores[category] += kw.split(' ').length * 2;
       }
     }
   }
+
+  // Strong context boosts
+  if (/placement\s+cell|recruitment|ctc|lpa|hiring/i.test(lower)) scores['Placement'] += 5;
+  if (/hackathon|techfest|coding\s+challenge|ideathon/i.test(lower)) scores['Events/Fest'] += 6;
+  if (/exam|midsem|endsem|hall\s+ticket|corrigendum/i.test(lower)) scores['Admin/Exam'] += 5;
+  if (/coding\s+club|student\s+chapter|orientation/i.test(lower)) scores['Clubs'] += 4;
 
   let maxScore = 0;
   let bestCategory: Category = 'Academic';
@@ -241,28 +302,35 @@ export function classifyCategory(text: string): Category {
   return bestCategory;
 }
 
-// ─── Target Audience ─────────────────────────────────────────────
+// ─── Target Audience (Strict Word Boundaries to avoid false positives) ───────────────
 
 export function parseTargetBranches(text: string): Branch[] {
   const lower = text.toLowerCase();
-  const branches: Branch[] = [];
 
-  if (/\ball\s+branch/i.test(lower) || /\bevery\s+branch/i.test(lower) || /\ball\s+department/i.test(lower)) {
+  // If "all branches" or "open to all"
+  if (
+    /\b(?:all\s+branches|every\s+branch|all\s+departments|all\s+students|open\s+to\s+all)\b/i.test(lower)
+  ) {
     return ['All'];
   }
 
-  const branchMap: Record<string, Branch> = {
-    'cse': 'CSE', 'computer science': 'CSE', 'cs': 'CSE', 'comp': 'CSE',
-    'ece': 'ECE', 'electronics': 'ECE', 'electrical and electronics': 'ECE',
-    'me': 'ME', 'mechanical': 'ME', 'mech': 'ME',
-    'ee': 'EE', 'electrical': 'EE', 'eee': 'EE',
-    'ce': 'CE', 'civil': 'CE',
-  };
+  const branches: Branch[] = [];
 
-  for (const [keyword, branch] of Object.entries(branchMap)) {
-    if (lower.includes(keyword) && !branches.includes(branch)) {
-      branches.push(branch);
-    }
+  // Use STRICT word boundaries (\b) so "time", "notice", "physics" don't falsely match
+  if (/\b(?:cse|computer\s+science|comp\s*sci|information\s+technology|\bit\b)\b/i.test(lower)) {
+    branches.push('CSE');
+  }
+  if (/\b(?:ece|electronics(?:\s+and\s+communication)?|\benc\b)\b/i.test(lower)) {
+    branches.push('ECE');
+  }
+  if (/\b(?:me|mechanical|mech(?:\s+engineering|\s+dept)?)\b/i.test(lower)) {
+    branches.push('ME');
+  }
+  if (/\b(?:ee|eee|electrical(?:\s+engineering|\s+dept)?)\b/i.test(lower)) {
+    branches.push('EE');
+  }
+  if (/\b(?:ce|civil(?:\s+engineering|\s+dept)?)\b/i.test(lower)) {
+    branches.push('CE');
   }
 
   return branches.length > 0 ? branches : ['All'];
@@ -270,23 +338,26 @@ export function parseTargetBranches(text: string): Branch[] {
 
 export function parseTargetYears(text: string): Year[] {
   const lower = text.toLowerCase();
-  const years: Year[] = [];
 
-  if (/\ball\s+year/i.test(lower) || /\bevery\s+year/i.test(lower) || /\ball\s+student/i.test(lower)) {
+  if (
+    /\b(?:all\s+years|every\s+year|all\s+students|open\s+to\s+all)\b/i.test(lower)
+  ) {
     return ['1st', '2nd', '3rd', '4th'];
   }
 
-  const yearMap: Record<string, Year> = {
-    '1st year': '1st', 'first year': '1st', 'freshers': '1st', 'fresher': '1st', 'freshman': '1st',
-    '2nd year': '2nd', 'second year': '2nd', 'sophomore': '2nd',
-    '3rd year': '3rd', 'third year': '3rd', 'pre-final': '3rd',
-    '4th year': '4th', 'fourth year': '4th', 'final year': '4th',
-  };
+  const years: Year[] = [];
 
-  for (const [keyword, year] of Object.entries(yearMap)) {
-    if (lower.includes(keyword) && !years.includes(year)) {
-      years.push(year);
-    }
+  if (/\b(?:1st|first)\s*(?:year)?|freshers?|freshman\b/i.test(lower)) {
+    years.push('1st');
+  }
+  if (/\b(?:2nd|second)\s*(?:year)?|sophomores?\b/i.test(lower)) {
+    years.push('2nd');
+  }
+  if (/\b(?:3rd|third)\s*(?:year)?|pre-final\b/i.test(lower)) {
+    years.push('3rd');
+  }
+  if (/\b(?:4th|fourth|final)\s*(?:year)?\b/i.test(lower)) {
+    years.push('4th');
   }
 
   return years.length > 0 ? years : ['1st', '2nd', '3rd', '4th'];
@@ -299,34 +370,43 @@ export function parseActionChecklist(text: string): string[] {
   const lines = text.split('\n');
 
   for (const line of lines) {
-    const trimmed = line.trim();
+    let trimmed = line.trim();
 
-    // Bullet point items
-    if (/^[•\-*▸▹➤➜→⮕✓☐☑]\s+/.test(trimmed)) {
-      const item = trimmed.replace(/^[•\-*▸▹➤➜→⮕✓☐☑]\s+/, '').trim();
-      if (item.length > 2 && item.length < 200) items.push(item);
-      continue;
-    }
+    // Bullet point items: "•", "-", "*", "1.", etc.
+    const isBullet = /^[•\-*▸▹➤➜→⮕✓☐☑]\s+/.test(trimmed);
+    const isNumbered = /^\(?\d+[.)]\s+/.test(trimmed);
 
-    // Numbered items: "1.", "1)", "(1)"
-    if (/^\(?\d+[.)]\s+/.test(trimmed)) {
-      const item = trimmed.replace(/^\(?\d+[.)]\s+/, '').trim();
-      if (item.length > 2 && item.length < 200) items.push(item);
-      continue;
-    }
+    if (isBullet || isNumbered) {
+      trimmed = trimmed
+        .replace(/^[•\-*▸▹➤➜→⮕✓☐☑]\s+/, '')
+        .replace(/^\(?\d+[.)]\s+/, '')
+        .trim();
 
-    // Action keywords
-    const actionKeywords = /\b(bring|carry|submit|register|fill|download|print|prepare|wear|arrange|note|remember|must have|required|prerequisite|mandatory)\b/i;
-    if (actionKeywords.test(trimmed) && trimmed.length < 200 && trimmed.length > 5) {
-      // Avoid adding full paragraphs, only concise action lines
-      if (trimmed.split(' ').length <= 20) {
+      // Don't add bare URL links as checklist items
+      if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('Register here: http')) {
+        continue;
+      }
+
+      if (trimmed.length > 3 && trimmed.length < 150) {
         items.push(trimmed);
+      }
+      continue;
+    }
+
+    // Action imperative phrases
+    const actionKeywords = /\b(bring|carry|submit|fill|download|print|prepare|wear|arrange|remember|must have|required|prerequisite)\b/i;
+    if (actionKeywords.test(trimmed) && trimmed.length > 5 && trimmed.length < 150) {
+      // Exclude full administrative disclaimers or forwarded headers
+      if (!/(?:forwarded|officer|controller|subject|dean|regards)/i.test(trimmed)) {
+        if (!/^https?:\/\//i.test(trimmed) && trimmed.split(' ').length <= 15) {
+          items.push(trimmed);
+        }
       }
     }
   }
 
-  // Deduplicate
-  return [...new Set(items)].slice(0, 10);
+  // Deduplicate and filter out junk
+  return [...new Set(items)].slice(0, 8);
 }
 
 // ─── Registration Link ──────────────────────────────────────────
@@ -335,8 +415,10 @@ export function parseRegistrationLink(text: string): string {
   const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
   const matches = text.match(urlRegex);
   if (matches) {
-    for (const url of matches) {
-      const validated = validateUrl(url);
+    for (const rawUrl of matches) {
+      // Clean trailing punctuation like '.' or ')' if at sentence boundary
+      const cleaned = rawUrl.replace(/[.,;:!)]+$/, '');
+      const validated = validateUrl(cleaned);
       if (validated) return validated;
     }
   }
@@ -358,45 +440,72 @@ export function isCorrigendum(text: string): boolean {
   return CORRIGENDUM_KEYWORDS.some(kw => lower.includes(kw));
 }
 
-// ─── Title Extraction ────────────────────────────────────────────
+// ─── Robust Title Extraction ────────────────────────────────────
 
 export function parseTitle(text: string): string {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
+  // 1. Look for explicit Subject or Topic line: "Subject: Change in Examination Room..."
   for (const line of lines) {
-    // Clean up leading/trailing markdown and emojis first
-    let cleaned = line
-      .replace(/^[\*_~`#\s]+/, '')
-      .replace(/[\*_~`#\s]+$/, '')
-      .replace(/^[🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡]+\s*/u, '')
-      .replace(/[🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡]+$/u, '')
-      .trim();
+    const subjectMatch = line.match(/^(?:subject|sub|topic|event|re)\s*[:–—-]\s*(.+)$/i);
+    if (subjectMatch) {
+      let cleaned = cleanTitleString(subjectMatch[1]);
+      if (cleaned.length >= 5) return cleaned;
+    }
+  }
 
-    // Skip forwarded message headers
-    if (/^(forwarded|fwd|from:|to:|cc:|date:|sent:|------|\*{3})/i.test(cleaned)) continue;
-    if (/^forwarded as received/i.test(cleaned)) continue;
+  // Generic administrative banners to skip
+  const GENERIC_BANNERS = [
+    /^(?:urgent|urgent notice|important|notice|circular|official circular|memo|memorandum|broadcast|announcement)$/i,
+    /^(?:placement cell.*|academic section.*|examination section.*|exam notice.*)$/i,
+    /^(?:forwarded.*|\*forwarded.*)$/i,
+    /^(?:corrigendum.*|amendment notice.*|urgent update.*)$/i,
+    /^(?:ref(?:\s+no)?\s*[:.\-].*)$/i,
+    /^(?:all branches.*|all students.*|dear students.*)$/i,
+  ];
 
-    // Skip purely generic department banners
-    if (/^(placement cell notice|placement cell urgent update|placement notice|academic section notice|circular|official notice|urgent notice)$/i.test(cleaned)) continue;
+  for (const line of lines) {
+    let cleaned = cleanTitleString(line);
 
-    // Skip lines that are just dates/times
+    // Skip generic banners
+    const isGeneric = GENERIC_BANNERS.some(rx => rx.test(cleaned));
+    if (isGeneric) continue;
+
+    // Skip lines starting with metadata labels
+    if (/^(?:date|time|venue|location|place|link|prerequisites?|eligibility|contact)\s*[:–—-]/i.test(cleaned)) {
+      continue;
+    }
+
+    // Skip lines that are just numbers/dates/URLs
     if (/^\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4}$/.test(cleaned)) continue;
-
-    // Skip lines that are just URLs
     if (/^https?:\/\//i.test(cleaned)) continue;
 
-    // Skip very short lines (likely artifacts)
-    if (cleaned.length < 5) continue;
+    // Skip very short lines or divider lines
+    if (cleaned.length < 5 || /^[-=*_~]{3,}$/.test(cleaned)) continue;
 
-    // Truncate to reasonable title length
+    // Truncate if overly long
     if (cleaned.length > 80) {
       cleaned = cleaned.slice(0, 77) + '...';
     }
 
-    if (cleaned.length >= 5) return cleaned;
+    return cleaned;
   }
 
-  return 'Untitled Notice';
+  return 'Untitled Campus Notice';
+}
+
+function cleanTitleString(str: string): string {
+  let res = str.trim();
+  let prev = '';
+  // Strip emojis, quotes, and markdown characters repeatedly until clean
+  while (res !== prev) {
+    prev = res;
+    res = res
+      .replace(/^[\*_~`#\-+=\s🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡🏆📅⏰📍]+/, '')
+      .replace(/[\*_~`#\-+=\s🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡🏆📅⏰📍]+$/, '')
+      .trim();
+  }
+  return res;
 }
 
 // ─── Gemini AI Extraction ────────────────────────────────────────
@@ -406,14 +515,14 @@ const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-2.5-flash'];
 async function extractWithGemini(text: string, apiKey: string): Promise<ExtractionResult | null> {
   const prompt = `Extract structured information from this campus notice/message. Return ONLY valid JSON with these fields:
 {
-  "title": "concise title",
+  "title": "concise specific event title",
   "date": "YYYY-MM-DD or empty string",
   "time": "HH:MM in 24h format or empty string",
-  "venue": "location or empty string",
+  "venue": "specific location or empty string",
   "category": one of "Academic", "Placement", "Events/Fest", "Clubs", "Admin/Exam",
   "targetBranches": array of "CSE","ECE","ME","EE","CE","All",
   "targetYears": array of "1st","2nd","3rd","4th",
-  "actionChecklist": array of action items (things to bring/do/prepare),
+  "actionChecklist": array of concise action items (things to bring/do/prepare),
   "registrationLink": "URL or empty string",
   "isCorrigendum": boolean (true if this updates/corrects a previous notice)
 }
@@ -439,7 +548,7 @@ ${text}`;
       );
 
       if (!response.ok) {
-        console.warn(`Gemini (${model}) returned status ${response.status}. Falling back to offline NLP parser.`);
+        console.warn(`Gemini (${model}) returned status ${response.status}. Falling back to offline parser.`);
         continue;
       }
 
@@ -450,15 +559,15 @@ ${text}`;
       const parsed = JSON.parse(content);
       return {
         title: parsed.title || parseTitle(text),
-        date: parsed.date || '',
-        time: parsed.time || '',
-        venue: parsed.venue || '',
-        category: parsed.category || 'Academic',
-        targetBranches: parsed.targetBranches || ['All'],
-        targetYears: parsed.targetYears || ['1st', '2nd', '3rd', '4th'],
-        actionChecklist: parsed.actionChecklist || [],
-        registrationLink: parsed.registrationLink ? (validateUrl(parsed.registrationLink) || '') : '',
-        isCorrigendum: parsed.isCorrigendum || false,
+        date: parsed.date || parseDate(text),
+        time: parsed.time || parseTime(text),
+        venue: parsed.venue || parseVenue(text),
+        category: parsed.category || classifyCategory(text),
+        targetBranches: parsed.targetBranches || parseTargetBranches(text),
+        targetYears: parsed.targetYears || parseTargetYears(text),
+        actionChecklist: parsed.actionChecklist || parseActionChecklist(text),
+        registrationLink: parsed.registrationLink ? (validateUrl(parsed.registrationLink) || '') : parseRegistrationLink(text),
+        isCorrigendum: parsed.isCorrigendum ?? isCorrigendum(text),
         source: 'gemini',
       };
     } catch (err) {
@@ -588,7 +697,7 @@ export async function extractNotice(
   // Try AI extraction first if key provided
   if (apiKey && apiKey.trim()) {
     const aiResult = await extractWithGemini(text, apiKey.trim());
-    if (aiResult && aiResult.title && aiResult.title !== 'Untitled Notice') {
+    if (aiResult && aiResult.title && aiResult.title !== 'Untitled Campus Notice') {
       const verification = assessVerificationConfidence(text);
       return {
         ...aiResult,
@@ -603,4 +712,3 @@ export async function extractNotice(
   // Fallback to local heuristic NLP extraction
   return extractLocal(text);
 }
-
