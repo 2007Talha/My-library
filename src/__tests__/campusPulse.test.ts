@@ -8,7 +8,17 @@ import {
   assessVerificationConfidence,
   enrichSocialPrerequisites,
 } from '../utils/smartExtractor';
-import { classifyUrgency, computePriorityScore, detectClashes } from '../utils/priorityEngine';
+import {
+  classifyUrgency,
+  computePriorityScore,
+  detectClashes,
+  generateICS,
+  generateWeeklyDigest,
+  formatDisplayDate,
+  formatDisplayTime,
+  getCountdown,
+  isRelevantToContext,
+} from '../utils/priorityEngine';
 import { sanitizeInput, validateUrl } from '../utils/sanitizer';
 import type { Notice, StudentContext } from '../types/notice';
 
@@ -416,5 +426,217 @@ RSVP form: https://forms.google.com/coding-club-2026
     expect(res.time).toBe('16:30');
     expect(res.venue).toBe('Computer Lab 3, CS Block');
     expect(res.registrationLink).toBe('https://forms.google.com/coding-club-2026');
+  });
+
+  it('18. generates weekly executive digest with action items and summary formatting', () => {
+    const today = new Date();
+    const todayISO = today.toISOString().split('T')[0];
+    const testNotices: Notice[] = [
+      {
+        id: 'd-1',
+        title: 'Midsem Data Structures Practical Exam',
+        rawText: '...',
+        date: todayISO,
+        time: '14:00',
+        venue: 'Lab 204',
+        category: 'Academic',
+        urgency: 'Urgent',
+        targetBranches: ['CSE'],
+        targetYears: ['3rd'],
+        actionChecklist: ['Bring practical record book', 'Wear lab apron'],
+        registrationLink: '',
+        priorityScore: 90,
+        isCorrigendum: false,
+        updatesNoticeId: null,
+        createdAt: new Date().toISOString(),
+        updatedBadge: false,
+        verificationStatus: 'Official',
+        verificationScore: 95,
+        verificationReason: 'Verified HOD',
+      },
+    ];
+
+    const context: StudentContext = {
+      branch: 'CSE',
+      year: '3rd',
+      focusMode: 'Academics',
+      lowAttendanceWarning: false,
+      attendancePercentage: 86,
+    };
+
+    const digest = generateWeeklyDigest(testNotices, context);
+    expect(digest).toContain('MY LIBRARY WEEKLY EXECUTIVE DIGEST');
+    expect(digest).toContain('Midsem Data Structures Practical Exam');
+    expect(digest).toContain('Bring practical record book');
+    expect(digest).toContain('Forwarded via My Library');
+  });
+
+  it('19. formats dates and 24-hour time strings gracefully', () => {
+    expect(formatDisplayDate('2026-11-25')).toContain('Nov');
+    expect(formatDisplayDate('')).toBe('Date TBD');
+    expect(formatDisplayTime('14:30')).toBe('2:30 PM');
+    expect(formatDisplayTime('09:05')).toBe('9:05 AM');
+    expect(formatDisplayTime('')).toBe('');
+  });
+
+  it('20. computes relative countdowns correctly', () => {
+    const today = new Date();
+    const todayISO = today.toISOString().split('T')[0];
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowISO = tomorrow.toISOString().split('T')[0];
+
+    expect(getCountdown(todayISO)).toBe('Today!');
+    expect(getCountdown(tomorrowISO)).toBe('Tomorrow');
+    expect(getCountdown('')).toBe('');
+  });
+
+  it('21. accurately filters notices relevant to student branch and year context', () => {
+    const studentA: StudentContext = {
+      branch: 'CSE',
+      year: '3rd',
+      focusMode: 'Placements',
+      lowAttendanceWarning: false,
+      attendancePercentage: 86,
+    };
+
+    const noticeRelevant: Notice = {
+      id: 'r1',
+      title: 'CSE 3rd Year Placement Orientation',
+      rawText: '...',
+      date: '2026-11-20',
+      time: '11:00',
+      venue: 'Auditorium',
+      category: 'Placement',
+      urgency: 'Upcoming',
+      targetBranches: ['CSE'],
+      targetYears: ['3rd'],
+      actionChecklist: [],
+      registrationLink: '',
+      priorityScore: 80,
+      isCorrigendum: false,
+      updatesNoticeId: null,
+      createdAt: new Date().toISOString(),
+      updatedBadge: false,
+      verificationStatus: 'Official',
+      verificationScore: 90,
+      verificationReason: 'Official',
+    };
+
+    const noticeIrrelevant: Notice = {
+      id: 'r2',
+      title: 'Civil Engineering Site Survey for 1st Years',
+      rawText: '...',
+      date: '2026-11-20',
+      time: '09:00',
+      venue: 'Survey Field',
+      category: 'Academic',
+      urgency: 'Upcoming',
+      targetBranches: ['CE'],
+      targetYears: ['1st'],
+      actionChecklist: [],
+      registrationLink: '',
+      priorityScore: 20,
+      isCorrigendum: false,
+      updatesNoticeId: null,
+      createdAt: new Date().toISOString(),
+      updatedBadge: false,
+      verificationStatus: 'Official',
+      verificationScore: 90,
+      verificationReason: 'Official',
+    };
+
+    expect(isRelevantToContext(noticeRelevant, studentA)).toBe(true);
+    expect(isRelevantToContext(noticeIrrelevant, studentA)).toBe(false);
+  });
+
+  it('22. detects multi-deadline clashes across concurrent events', () => {
+    const n1: Notice = {
+      id: 'clash-1',
+      title: 'Lab Exam',
+      rawText: '',
+      date: '2026-11-30',
+      time: '10:00',
+      venue: 'Room 1',
+      category: 'Academic',
+      urgency: 'Upcoming',
+      targetBranches: ['CSE'],
+      targetYears: ['3rd'],
+      actionChecklist: [],
+      registrationLink: '',
+      priorityScore: 80,
+      isCorrigendum: false,
+      updatesNoticeId: null,
+      createdAt: new Date().toISOString(),
+      updatedBadge: false,
+      verificationStatus: 'Official',
+      verificationScore: 90,
+      verificationReason: 'Dept',
+    };
+
+    const n2: Notice = {
+      id: 'clash-2',
+      title: 'Project Presentation',
+      rawText: '',
+      date: '2026-11-30',
+      time: '10:15',
+      venue: 'Room 2',
+      category: 'Academic',
+      urgency: 'Upcoming',
+      targetBranches: ['CSE'],
+      targetYears: ['3rd'],
+      actionChecklist: [],
+      registrationLink: '',
+      priorityScore: 80,
+      isCorrigendum: false,
+      updatesNoticeId: null,
+      createdAt: new Date().toISOString(),
+      updatedBadge: false,
+      verificationStatus: 'Official',
+      verificationScore: 90,
+      verificationReason: 'Dept',
+    };
+
+    const clashes = detectClashes([n1, n2]);
+    expect(clashes.length).toBeGreaterThan(0);
+    expect(clashes[0].overlapDescription).toContain('overlap on');
+    expect(clashes[0].noticeA.id).toBe('clash-1');
+    expect(clashes[0].noticeB.id).toBe('clash-2');
+  });
+
+  it('23. formats iCalendar (.ics) files standard-compliantly with DTSTART, SUMMARY and LOCATION', () => {
+    const notice: Notice = {
+      id: 'ics-1',
+      title: 'Google DevFest Campus Hackathon',
+      rawText: '',
+      date: '2026-12-10',
+      time: '10:00',
+      venue: 'Auditorium Hall B',
+      category: 'Events/Fest',
+      urgency: 'Upcoming',
+      targetBranches: ['All'],
+      targetYears: ['3rd', '4th'],
+      actionChecklist: ['Bring student ID', 'Form team'],
+      registrationLink: 'https://devfest.com',
+      priorityScore: 85,
+      isCorrigendum: false,
+      updatesNoticeId: null,
+      createdAt: new Date().toISOString(),
+      updatedBadge: false,
+      verificationStatus: 'Official',
+      verificationScore: 95,
+      verificationReason: 'Confirmed',
+    };
+
+    const ics = generateICS(notice);
+    expect(ics).toContain('BEGIN:VCALENDAR');
+    expect(ics).toContain('VERSION:2.0');
+    expect(ics).toContain('BEGIN:VEVENT');
+    expect(ics).toContain('SUMMARY:Google DevFest Campus Hackathon');
+    expect(ics).toContain('LOCATION:Auditorium Hall B');
+    expect(ics).toContain('DTSTART:20261210T100000');
+    expect(ics).toContain('END:VEVENT');
+    expect(ics).toContain('END:VCALENDAR');
   });
 });
