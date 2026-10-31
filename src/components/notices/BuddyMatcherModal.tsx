@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Users, UserPlus, CheckCircle2, Sparkles, Send } from 'lucide-react';
 import type { Notice, BuddyProfile, StudentContext } from '../../types/notice';
-import Modal, { showToast } from '../common/Modal';
+import Modal from '../common/Modal';
+import { showToast } from '../../utils/toast';
 
 interface BuddyMatcherModalProps {
   isOpen: boolean;

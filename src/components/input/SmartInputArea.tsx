@@ -16,7 +16,7 @@ import type { Notice, ExtractionResult } from '../../types/notice';
 import { classifyUrgency, computePriorityScore } from '../../utils/priorityEngine';
 import type { StudentContext } from '../../types/notice';
 import { sampleMessyInputs, ocrMockPresets, type OcrMockPreset } from '../../data/sampleNotices';
-import { showToast } from '../common/Modal';
+import { showToast } from '../../utils/toast';
 
 interface SmartInputAreaProps {
   onNoticeExtracted: (notice: Notice, isCorrigendum: boolean) => void;

@@ -221,9 +221,9 @@ export function parseVenue(text: string): string {
 
 function cleanVenueString(str: string): string {
   return str
-    .replace(/^[\*_~`\s]+/, '')
-    .replace(/[\*_~`\s]+$/, '')
-    .replace(/[📍🏢🏛️🗺️]+/g, '')
+    .replace(/^[*_~`\s]+/, '')
+    .replace(/[*_~`\s]+$/, '')
+    .replace(/\p{Extended_Pictographic}/gu, '')
     .trim()
     .slice(0, 100);
 }
@@ -412,7 +412,7 @@ export function parseActionChecklist(text: string): string[] {
 // ─── Registration Link ──────────────────────────────────────────
 
 export function parseRegistrationLink(text: string): string {
-  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
+  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
   const matches = text.match(urlRegex);
   if (matches) {
     for (const rawUrl of matches) {
@@ -460,7 +460,7 @@ export function parseTitle(text: string): string {
     /^(?:placement cell.*|academic section.*|examination section.*|exam notice.*)$/i,
     /^(?:forwarded.*|\*forwarded.*)$/i,
     /^(?:corrigendum.*|amendment notice.*|urgent update.*)$/i,
-    /^(?:ref(?:\s+no)?\s*[:.\-].*)$/i,
+    /^(?:ref(?:\s+no)?\s*[:.-].*)$/i,
     /^(?:all branches.*|all students.*|dear students.*)$/i,
   ];
 
@@ -501,8 +501,9 @@ function cleanTitleString(str: string): string {
   while (res !== prev) {
     prev = res;
     res = res
-      .replace(/^[\*_~`#\-+=\s🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡🏆📅⏰📍]+/, '')
-      .replace(/[\*_~`#\-+=\s🚨📢📌⚠️🎉🎊💼📋🔔❗💥🔥⚡🏆📅⏰📍]+$/, '')
+      .replace(/^[*_~`#\-+=\s]+/u, '')
+      .replace(/[*_~`#\-+=\s]+$/u, '')
+      .replace(/\p{Extended_Pictographic}/gu, '')
       .trim();
   }
   return res;
@@ -599,7 +600,7 @@ export function assessVerificationConfidence(text: string): {
     score += 15;
     officialHits.push('Faculty/Officer designation');
   }
-  if (/ref(?:\s+no)?\s*[:.\-]\s*[\w\d\-/]+|circular\s+no|order\s+no/i.test(lower)) {
+  if (/ref(?:\s+no)?\s*[:.-]\s*[\w\d\-/]+|circular\s+no|order\s+no/i.test(lower)) {
     score += 20;
     officialHits.push('Document Reference/Circular number');
   }

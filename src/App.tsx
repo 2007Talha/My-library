@@ -14,7 +14,9 @@ import WeeklyDigestModal from './components/digest/WeeklyDigestModal';
 import ApiKeyModal from './components/input/ApiKeyModal';
 import CorrigendumMergeModal from './components/notices/CorrigendumMergeModal';
 import BuddyMatcherModal from './components/notices/BuddyMatcherModal';
-import { ViewToggle, ToastContainer, showToast } from './components/common/Modal';
+import { ViewToggle } from './components/common/Modal';
+import ToastContainer from './components/common/Toast';
+import { showToast } from './utils/toast';
 
 const DEFAULT_CONTEXT: StudentContext = {
   branch: 'CSE',

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Check, FileText, Share2 } from 'lucide-react';
 import type { Notice, StudentContext } from '../../types/notice';
-import Modal, { showToast } from '../common/Modal';
+import Modal from '../common/Modal';
+import { showToast } from '../../utils/toast';
 import { generateWeeklyDigest } from '../../utils/priorityEngine';
 
 interface WeeklyDigestModalProps {

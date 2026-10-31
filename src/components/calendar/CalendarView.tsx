@@ -8,6 +8,8 @@ interface CalendarViewProps {
   notices: Notice[];
 }
 
+const TODAY_ISO = new Date().toISOString().split('T')[0];
+
 export default function CalendarView({ notices }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(() => {
     const d = new Date();
@@ -124,8 +126,7 @@ export default function CalendarView({ notices }: CalendarViewProps) {
 
           const dayNotices = noticesByDate.get(cell.iso) || [];
           const isSelected = selectedDateISO === cell.iso;
-          const todayISO = new Date().toISOString().split('T')[0];
-          const isToday = cell.iso === todayISO;
+          const isToday = cell.iso === TODAY_ISO;
 
           return (
             <button
