@@ -315,17 +315,21 @@ export default function NoticeCard({
             <span>Buddies {notice.buddies?.length ? `(${notice.buddies.length})` : ''}</span>
           </button>
 
-          {notice.registrationLink && (
+          {notice.registrationLink ? (
             <a
               href={notice.registrationLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg transition"
-              aria-label={`Open registration link for ${notice.title}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-2xs transition"
+              aria-label={`Register for ${notice.title}`}
             >
-              <span>Register</span>
+              <span>Register Now</span>
               <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
+          ) : (
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+              Campus Event
+            </span>
           )}
         </div>
 

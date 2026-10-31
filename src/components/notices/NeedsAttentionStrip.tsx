@@ -30,39 +30,37 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
 
   return (
     <section
-      className="rounded-2xl p-6 border border-red-200 bg-gradient-to-r from-red-50/90 via-white to-amber-50/90 shadow-sm space-y-4"
+      id="attention-section"
+      className="space-y-3.5 pt-1"
       aria-label="Needs attention today hero spotlight"
       aria-live="polite"
     >
+      {/* Unstop Section Heading with Blue/Red Bar */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 shadow-xs">
-            <Flame size={20} className="animate-pulse" aria-hidden="true" />
-          </div>
-          <div>
-            <h2 className="text-base font-extrabold uppercase tracking-wider text-red-950">
-              Needs Attention Today
-            </h2>
-            <p className="text-xs text-red-700 font-semibold">
-              High-priority events, submissions & 24h countdowns
-            </p>
-          </div>
+        <div className="flex items-center gap-2.5">
+          <span className="w-1 h-6 bg-red-600 rounded-full" aria-hidden="true" />
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Needs Attention Today
+          </h2>
+          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700">
+            {urgentNotices.length} Must-Dos
+          </span>
         </div>
         <Badge variant="urgent" className="text-xs font-bold px-3 py-1">
-          {urgentNotices.length} Action Items
+          Within 24 Hours
         </Badge>
       </div>
 
-      {/* Cards list */}
+      {/* Cards list (Unstop Style) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {urgentNotices.map(notice => (
           <div
             key={notice.id}
-            className="p-4 rounded-xl bg-white border border-red-100 hover:border-red-300 shadow-xs hover:shadow-sm transition flex flex-col justify-between space-y-3"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-red-300 shadow-2xs hover:shadow-xs transition flex flex-col justify-between space-y-3"
           >
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold uppercase text-red-700 bg-red-50 border border-red-200/80 px-2 py-0.5 rounded-md">
                   {notice.category}
                 </span>
                 <span className="text-xs font-bold text-red-600 flex items-center gap-1">
@@ -95,7 +93,7 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
 
       {/* Schedule Clash Box */}
       {hasClashes && (
-        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
           <div className="flex items-center gap-2 text-amber-900 font-bold">
             <AlertTriangle size={18} className="text-amber-600 animate-bounce" aria-hidden="true" />
             <span className="text-sm uppercase tracking-wide">

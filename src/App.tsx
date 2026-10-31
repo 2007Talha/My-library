@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import type { StudentContext, Category, UrgencyFilter, Notice, ViewMode } from './types/notice';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNotices } from './hooks/useNotices';
+import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
+import HeroCategoryTiles from './components/layout/HeroCategoryTiles';
 import Footer from './components/layout/Footer';
 import NeedsAttentionStrip from './components/notices/NeedsAttentionStrip';
 import SmartInputArea from './components/input/SmartInputArea';
-import SearchBar from './components/filters/SearchBar';
 import FilterPills from './components/filters/FilterPills';
 import NoticeGrid from './components/notices/NoticeGrid';
 import CalendarView from './components/calendar/CalendarView';
@@ -31,6 +32,10 @@ export default function App() {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDigestOpen, setIsDigestOpen] = useState(false);
   const [activeBuddyNotice, setActiveBuddyNotice] = useState<Notice | null>(null);
+
+  // Unstop-style Sidebar toggle states
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -102,85 +107,134 @@ export default function App() {
     }
   };
 
+  const handleScrollToInput = () => {
+    document.getElementById('smart-input-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleScrollToAttention = () => {
+    document.getElementById('attention-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 text-slate-900 bg-light-grid selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50/60 text-slate-900 selection:bg-blue-600 selection:text-white">
       {/* Accessible skip link */}
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
 
-      {/* Left Sidebar Navigation & Student Identity Deck */}
-      <Sidebar
+      {/* Top Navbar (Unstop Style) */}
+      <Navbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
         context={context}
         onContextChange={(newContext) => {
           setContext(newContext);
           showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
         }}
-        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         onOpenDigest={() => setIsDigestOpen(true)}
-        onResetData={handleResetAllData}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
       />
 
-      {/* Main Studio Feed Area on the Right */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
-          <NeedsAttentionStrip notices={notices} clashes={clashes} />
+      {/* Body with Sidebar + Content */}
+      <div className="flex-1 flex min-w-0">
+        {/* Left Sidebar (Unstop Style) */}
+        <Sidebar
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          context={context}
+          onContextChange={(newContext) => {
+            setContext(newContext);
+            showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
+          }}
+          onScrollToInput={handleScrollToInput}
+          onResetData={handleResetAllData}
+          isCollapsed={isSidebarCollapsed}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        />
 
-          {/* Smart Input & OCR Extractor Terminal */}
-          <SmartInputArea
-            onNoticeExtracted={handleNoticeExtracted}
-            apiKey={apiKey}
-            context={context}
-          />
-
-          {/* Search, Filter & View Controls */}
-          <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4" aria-label="Notice search and view controls">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                resultCount={filteredNotices.length}
-              />
-
-              <div className="flex items-center justify-between sm:justify-end gap-3">
-                <ViewToggle view={viewMode} onViewChange={setViewMode} />
-              </div>
-            </div>
-
-            <FilterPills
+        {/* Main Feed Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-7">
+            {/* Hero Section with Unstop Category Tiles */}
+            <HeroCategoryTiles
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
-              selectedUrgency={selectedUrgency}
-              onUrgencyChange={setSelectedUrgency}
-              relevantOnly={relevantOnly}
-              onRelevantOnlyToggle={setRelevantOnly}
-              onResetFilters={handleResetFilters}
-              hasActiveFilters={hasActiveFilters}
+              onOpenDigest={() => setIsDigestOpen(true)}
+              onScrollToAttention={handleScrollToAttention}
+              urgentCount={notices.filter(n => n.urgency === 'Urgent').length}
             />
-          </section>
 
-          {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
-          {viewMode === 'grid' ? (
-            <NoticeGrid
-              notices={filteredNotices}
-              context={context}
-              clashes={clashes}
-              getCheckedItems={getCheckedItems}
-              onToggleChecklistItem={toggleChecklistItem}
-              onDeleteNotice={(id) => {
-                deleteNotice(id);
-                showToast('Notice archived from feed', 'info');
-              }}
-              onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
-            />
-          ) : (
-            <CalendarView notices={filteredNotices} />
-          )}
-        </main>
+            {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
+            <NeedsAttentionStrip notices={notices} clashes={clashes} />
 
-        {/* Footer */}
-        <Footer />
+            {/* Smart Input & OCR Extractor Terminal */}
+            <div id="smart-input-section">
+              <SmartInputArea
+                onNoticeExtracted={handleNoticeExtracted}
+                apiKey={apiKey}
+                context={context}
+              />
+            </div>
+
+            {/* Notices Header with Blue Accent Bar (Unstop Style) */}
+            <section className="space-y-4" aria-label="Campus notices and filters">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-1 h-6 bg-blue-600 rounded-full" aria-hidden="true" />
+                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                    Campus Notices
+                  </h2>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                    {filteredNotices.length} items
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-3">
+                  <ViewToggle view={viewMode} onViewChange={setViewMode} />
+                </div>
+              </div>
+
+              {/* Filter Pills */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
+                <FilterPills
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  selectedUrgency={selectedUrgency}
+                  onUrgencyChange={setSelectedUrgency}
+                  relevantOnly={relevantOnly}
+                  onRelevantOnlyToggle={setRelevantOnly}
+                  onResetFilters={handleResetFilters}
+                  hasActiveFilters={hasActiveFilters}
+                />
+              </div>
+            </section>
+
+            {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
+            {viewMode === 'grid' ? (
+              <NoticeGrid
+                notices={filteredNotices}
+                context={context}
+                clashes={clashes}
+                getCheckedItems={getCheckedItems}
+                onToggleChecklistItem={toggleChecklistItem}
+                onDeleteNotice={(id) => {
+                  deleteNotice(id);
+                  showToast('Notice archived from feed', 'info');
+                }}
+                onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
+              />
+            ) : (
+              <CalendarView notices={filteredNotices} />
+            )}
+          </main>
+
+          {/* Footer */}
+          <Footer />
+        </div>
       </div>
 
       {/* Modals & Overlays */}
