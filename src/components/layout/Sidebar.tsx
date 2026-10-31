@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Activity,
+  Library,
   Zap,
   Sparkles,
   KeyRound,
@@ -53,20 +53,15 @@ export default function Sidebar({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-500 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white shrink-0">
-              <Activity className="w-5 h-5 animate-pulse" aria-hidden="true" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white shrink-0">
+              <Library className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-slate-900 tracking-tight text-base font-mono">
-                  MY<span className="text-indigo-600">LIBRARY</span>
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  v2.0
-                </span>
-              </div>
-              <p className="text-[11px] font-medium text-slate-500">
-                Notice & Schedule Radar
+              <span className="font-extrabold text-slate-900 tracking-tight text-lg">
+                My <span className="text-indigo-600">Library</span>
+              </span>
+              <p className="text-xs font-medium text-slate-500">
+                Student Life Portal
               </p>
             </div>
           </div>
@@ -89,7 +84,7 @@ export default function Sidebar({
             onOpenDigest();
             setIsMobileOpen(false);
           }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/25 transition cursor-pointer group"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/20 transition cursor-pointer group"
           aria-label="What do I need to know this week?"
         >
           <Sparkles className="w-4 h-4 text-indigo-200 group-hover:rotate-12 transition-transform" aria-hidden="true" />
@@ -97,26 +92,26 @@ export default function Sidebar({
         </button>
 
         {/* Active Student Persona & Context Card */}
-        <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3.5">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-            <div className="flex items-center gap-1.5">
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5">
+          <div className="flex items-center justify-between text-sm font-bold text-slate-900">
+            <div className="flex items-center gap-2">
               <GraduationCap className="w-4 h-4 text-indigo-600" />
               <span>Student Profile</span>
             </div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Active</span>
+            <span className="text-xs text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md font-semibold">Active</span>
           </div>
 
           {/* Selectors */}
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <div>
-              <label htmlFor="sidebar-branch" className="block text-[11px] font-bold text-slate-600 mb-1">
+              <label htmlFor="sidebar-branch" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
                 Department / Branch
               </label>
               <select
                 id="sidebar-branch"
                 value={context.branch}
                 onChange={(e) => onContextChange({ ...context, branch: e.target.value as Branch })}
-                className="w-full text-xs font-semibold bg-white text-slate-800 border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
+                className="w-full text-sm font-medium bg-white text-slate-900 border border-slate-300 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
                 aria-label="Select student department"
               >
                 {BRANCHES.map(b => (
@@ -126,14 +121,14 @@ export default function Sidebar({
             </div>
 
             <div>
-              <label htmlFor="sidebar-year" className="block text-[11px] font-bold text-slate-600 mb-1">
+              <label htmlFor="sidebar-year" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
                 Academic Year
               </label>
               <select
                 id="sidebar-year"
                 value={context.year}
                 onChange={(e) => onContextChange({ ...context, year: e.target.value as Year })}
-                className="w-full text-xs font-semibold bg-white text-slate-800 border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
+                className="w-full text-sm font-medium bg-white text-slate-900 border border-slate-300 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
                 aria-label="Select academic graduation year"
               >
                 {YEARS.map(y => (
@@ -143,14 +138,14 @@ export default function Sidebar({
             </div>
 
             <div>
-              <label htmlFor="sidebar-focus" className="block text-[11px] font-bold text-slate-600 mb-1">
+              <label htmlFor="sidebar-focus" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
                 Priority Focus Mode
               </label>
               <select
                 id="sidebar-focus"
                 value={context.focusMode}
                 onChange={(e) => onContextChange({ ...context, focusMode: e.target.value as FocusMode })}
-                className="w-full text-xs font-semibold bg-white text-slate-800 border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
+                className="w-full text-sm font-medium bg-white text-slate-900 border border-slate-300 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition cursor-pointer shadow-xs"
                 aria-label="Select priority focus mode"
               >
                 {FOCUS_MODES.map(fm => (
@@ -161,11 +156,11 @@ export default function Sidebar({
           </div>
 
           {/* Interactive Attendance Triage Shield */}
-          <div className="pt-2 border-t border-slate-200">
+          <div className="pt-2">
             <button
               type="button"
               onClick={toggleAttendance}
-              className={`w-full p-3 rounded-xl border text-left transition cursor-pointer ${
+              className={`w-full p-3.5 rounded-xl border text-left transition cursor-pointer ${
                 isLow
                   ? 'bg-red-50 border-red-300 hover:bg-red-100/80 attendance-alert-pulse text-red-900'
                   : 'bg-emerald-50 border-emerald-300 hover:bg-emerald-100/80 text-emerald-950'
@@ -174,29 +169,29 @@ export default function Sidebar({
               title="Click to toggle attendance status (<75% low vs safe) to test conflict triage"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider">
-                  {isLow ? '⚠️ Low Attendance Risk' : '🛡️ Attendance Good'}
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  {isLow ? '⚠️ Low Attendance (<75%)' : '🛡️ Attendance Normal'}
                 </span>
-                <span className="text-xs font-extrabold font-mono">
+                <span className="text-sm font-extrabold font-mono">
                   {context.attendancePercentage || 86}%
                 </span>
               </div>
-              <p className="text-[11px] font-medium leading-snug">
+              <p className="text-xs font-medium leading-relaxed">
                 {isLow
-                  ? 'Makeup classes & labs boosted to Urgent. Fests deprioritized.'
-                  : 'Normal priority balance across academics, placements & fests.'}
+                  ? 'Academic labs & classes boosted to Urgent. Fests deprioritized.'
+                  : 'Normal priority across all categories.'}
               </p>
             </button>
           </div>
         </div>
 
         {/* 1-Click Personas */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
             <Zap size={14} className="text-amber-500" aria-hidden="true" />
             <span>1-Click Personas</span>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {demoPresets.map((preset, idx) => (
               <button
                 key={idx}
@@ -205,14 +200,14 @@ export default function Sidebar({
                   onContextChange(preset.context);
                   setIsMobileOpen(false);
                 }}
-                className="w-full text-left p-2 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/50 transition text-xs group"
+                className="w-full text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/50 transition group"
                 aria-label={`Switch persona to: ${preset.label}`}
                 title={preset.description}
               >
-                <div className="font-bold text-slate-800 group-hover:text-indigo-600 transition leading-snug">
+                <div className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition leading-snug">
                   {preset.label}
                 </div>
-                <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                <div className="text-xs text-slate-500 line-clamp-1 mt-0.5">
                   {preset.description}
                 </div>
               </button>
@@ -222,17 +217,17 @@ export default function Sidebar({
       </div>
 
       {/* Bottom Utility Controls */}
-      <div className="pt-4 border-t border-slate-200 space-y-2">
+      <div className="pt-4 space-y-2">
         <button
           type="button"
           onClick={() => {
             onOpenApiKeyModal();
             setIsMobileOpen(false);
           }}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-slate-700 hover:text-indigo-600 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-xl transition shadow-xs"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold text-slate-700 hover:text-indigo-600 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-xl transition shadow-xs"
           aria-label="Configure Gemini API Key"
         >
-          <KeyRound size={13} className="text-slate-500" />
+          <KeyRound size={15} className="text-slate-500" />
           <span>Configure API Key</span>
         </button>
 
@@ -242,15 +237,15 @@ export default function Sidebar({
             onResetData();
             setIsMobileOpen(false);
           }}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
           aria-label="Reset campus notices back to default state"
         >
-          <RotateCcw size={13} />
+          <RotateCcw size={15} />
           <span>Reset Sample Data</span>
         </button>
 
-        <div className="text-[10px] text-slate-400 text-center pt-2">
-          PromptWars × CSSS • Client-Side Radar
+        <div className="text-xs text-slate-400 text-center pt-2">
+          Client-Side Privacy Engine
         </div>
       </div>
     </div>
@@ -260,12 +255,12 @@ export default function Sidebar({
     <>
       {/* Mobile Top App Bar with Hamburger */}
       <div className="md:hidden flex items-center justify-between p-3.5 bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-            <Activity className="w-4 h-4 animate-pulse" />
+            <Library className="w-4 h-4" />
           </div>
-          <span className="font-black text-slate-900 font-mono text-sm">
-            MY<span className="text-indigo-600">LIBRARY</span>
+          <span className="font-extrabold text-slate-900 text-base">
+            My <span className="text-indigo-600">Library</span>
           </span>
         </div>
 
@@ -273,7 +268,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={toggleAttendance}
-            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${
               isLow
                 ? 'bg-red-100 text-red-800 border-red-300'
                 : 'bg-emerald-100 text-emerald-800 border-emerald-300'

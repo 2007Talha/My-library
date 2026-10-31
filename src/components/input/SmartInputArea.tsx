@@ -123,16 +123,16 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
     <section className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4" aria-label="Smart extraction terminal">
       {/* Top Header & Tab Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
-            <ClipboardList size={18} aria-hidden="true" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-xs">
+            <ClipboardList size={20} aria-hidden="true" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              Smart Input & Poster OCR Terminal
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              Smart Notice Parser & Poster Scanner
             </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              Paste messy WhatsApp forwards, raw text circulars, or scan flyer images
+            <p className="text-xs text-slate-600 font-medium">
+              Paste forwarded WhatsApp messages, email circulars, or scan flyer images
             </p>
           </div>
         </div>
@@ -144,7 +144,7 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             role="tab"
             aria-selected={activeTab === 'text'}
             onClick={() => setActiveTab('text')}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+            className={`px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition ${
               activeTab === 'text'
                 ? 'bg-white text-indigo-600 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -157,14 +157,14 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             role="tab"
             aria-selected={activeTab === 'ocr'}
             onClick={() => setActiveTab('ocr')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition ${
               activeTab === 'ocr'
                 ? 'bg-white text-indigo-600 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <ImageIcon className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>📁 Poster OCR Mock</span>
+            <ImageIcon className="w-4 h-4" aria-hidden="true" />
+            <span>📁 Poster OCR Scanner</span>
           </button>
         </div>
       </div>
@@ -176,22 +176,22 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Paste forwarded WhatsApp notices, email circulars, exam room updates, or fest poster captions..."
-            className="w-full h-32 px-4 py-3 bg-slate-50/80 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition resize-y placeholder:text-slate-400"
+            className="w-full h-32 px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition resize-y placeholder:text-slate-400"
             aria-label="Paste notice text here"
           />
 
           {/* Sample Input Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-bold text-slate-600 mr-1 flex items-center gap-1">
-              <Zap size={13} className="text-amber-500" />
-              1-Click Demo Messy Forwards:
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-slate-700 mr-1 flex items-center gap-1">
+              <Zap size={14} className="text-amber-500" />
+              1-Click Demo Inputs:
             </span>
             {sampleMessyInputs.map((sample, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleSampleClick(sample.text)}
-                className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 transition font-medium"
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 transition font-semibold shadow-xs"
                 aria-label={`Load sample forward: ${sample.label}`}
               >
                 {sample.emoji} {sample.label}
@@ -231,22 +231,22 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             </div>
 
             <div>
-              <p className="text-xs font-bold text-slate-800">
+              <p className="text-sm font-bold text-slate-800">
                 {selectedOcrFilename ? `Scanned File: ${selectedOcrFilename}` : 'Drop Event Poster / Flyer Screenshot, or Click to Browse'}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Simulates optical character recognition (OCR) and layout entity detection
               </p>
             </div>
           </div>
 
           {/* 3 OCR Mock Demo Presets */}
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-              <ScanLine size={13} className="text-indigo-600" />
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <ScanLine size={14} className="text-indigo-600" />
               Test 3 Poster OCR Scenarios:
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {ocrMockPresets.map((preset) => (
                 <button
                   key={preset.id}
@@ -255,19 +255,19 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
                   className="p-3 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 rounded-xl text-left transition flex flex-col justify-between space-y-1.5 shadow-xs"
                   aria-label={`Load OCR scenario: ${preset.label}`}
                 >
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-max">
+                  <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-max">
                     {preset.badge}
                   </span>
-                  <span className="text-xs font-bold text-slate-900 leading-snug">{preset.label}</span>
-                  <span className="text-[10px] font-mono text-slate-500 truncate">{preset.filename}</span>
+                  <span className="text-sm font-bold text-slate-900 leading-snug">{preset.label}</span>
+                  <span className="text-xs font-mono text-slate-500 truncate">{preset.filename}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {inputText && !isScanningOcr && (
-            <div className="space-y-1 pt-1">
-              <span className="text-[11px] font-bold text-slate-600">OCR Extracted Text Buffer:</span>
+            <div className="space-y-1.5 pt-1">
+              <span className="text-xs font-bold text-slate-700">OCR Extracted Text Buffer:</span>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -280,26 +280,26 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
       )}
 
       {/* Extract Button Row */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-        <span className="text-[11px] text-slate-500 font-medium">
-          {inputText ? `${inputText.length} characters parsed` : 'Deterministic Heuristic NLP + Cloud AI Fallback'}
+      <div className="flex items-center justify-between pt-2">
+        <span className="text-xs text-slate-500 font-medium">
+          {inputText ? `${inputText.length} characters ready` : 'Zero-Key Offline Heuristic Engine + Gemini Fallback'}
         </span>
 
         <button
           type="button"
           onClick={() => handleExtract()}
           disabled={isExtracting || isScanningOcr || !inputText.trim()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
           aria-label="Parse and add notice to calendar feed"
         >
           {isExtracting ? (
             <>
-              <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
               <span>Parsing Entities...</span>
             </>
           ) : (
             <>
-              <Sparkles size={14} aria-hidden="true" />
+              <Sparkles size={16} aria-hidden="true" />
               <span>Parse & Add to Feed</span>
             </>
           )}

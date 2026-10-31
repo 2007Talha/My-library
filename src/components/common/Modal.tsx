@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { X, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, Info, LayoutGrid, Calendar } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -114,25 +114,27 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         role="tab"
         aria-selected={view === 'grid'}
         onClick={() => onViewChange('grid')}
-        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
+        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition ${
           view === 'grid'
             ? 'bg-white text-indigo-600 shadow-xs'
             : 'text-slate-600 hover:text-slate-900'
         }`}
       >
-        Card Feed
+        <LayoutGrid className="w-4 h-4" />
+        <span>Cards</span>
       </button>
       <button
         role="tab"
         aria-selected={view === 'calendar'}
         onClick={() => onViewChange('calendar')}
-        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
+        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-lg transition ${
           view === 'calendar'
             ? 'bg-white text-indigo-600 shadow-xs'
             : 'text-slate-600 hover:text-slate-900'
         }`}
       >
-        Calendar
+        <Calendar className="w-4 h-4" />
+        <span>Calendar</span>
       </button>
     </div>
   );

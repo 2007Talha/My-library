@@ -17,7 +17,7 @@ export default function SearchBar({ value, onChange, resultCount }: SearchBarPro
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search notices by keyword, lab room, venue, checklist item..."
-        className="w-full pl-10 pr-9 py-2 text-xs bg-slate-950/80 text-slate-200 border border-slate-700/80 rounded-xl focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 shadow-inner transition placeholder:text-slate-500"
+        className="w-full pl-10 pr-9 py-2.5 text-sm font-medium bg-white text-slate-900 border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 shadow-xs transition placeholder:text-slate-400"
         aria-label="Search campus notices"
       />
       {value && (
