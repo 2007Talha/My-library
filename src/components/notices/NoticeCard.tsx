@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Circle,
   AlertCircle,
-  Sparkles,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
@@ -19,8 +18,6 @@ import {
   Compass,
   FileText,
   Flame,
-  History,
-  Award,
   CalendarPlus,
   UserCheck,
   ArrowUpRight,
@@ -32,7 +29,6 @@ import {
   formatDisplayTime,
   getCountdown,
   downloadICS,
-  isRelevantToContext,
   isAcademicMandatoryNotice,
 } from '../../utils/priorityEngine';
 
@@ -56,7 +52,6 @@ export default function NoticeCard({
   onOpenBuddyMatcher,
 }: NoticeCardProps) {
   const [showFullChecklist, setShowFullChecklist] = useState(false);
-  const isRelevant = isRelevantToContext(notice, context);
   const isAttendanceRisk = context.lowAttendanceWarning && isAcademicMandatoryNotice(notice);
 
   const categoryVariantMap: Record<Notice['category'], 'academic' | 'placement' | 'events' | 'clubs' | 'admin'> = {
@@ -67,12 +62,6 @@ export default function NoticeCard({
     'Admin/Exam': 'admin',
   };
 
-  const urgencyVariantMap: Record<Notice['urgency'], 'urgent' | 'upcoming' | 'expired'> = {
-    'Urgent': 'urgent',
-    'Upcoming': 'upcoming',
-    'Expired': 'expired',
-  };
-
   const getCategoryIcon = (category: Notice['category']) => {
     switch (category) {
       case 'Academic':
@@ -80,22 +69,11 @@ export default function NoticeCard({
       case 'Placement':
         return <Briefcase className="w-3.5 h-3.5 text-purple-600" aria-hidden="true" />;
       case 'Events/Fest':
-        return <Sparkles className="w-3.5 h-3.5 text-pink-600" aria-hidden="true" />;
+        return <Flame className="w-3.5 h-3.5 text-pink-600" aria-hidden="true" />;
       case 'Clubs':
         return <Compass className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />;
       case 'Admin/Exam':
         return <FileText className="w-3.5 h-3.5 text-orange-600" aria-hidden="true" />;
-    }
-  };
-
-  const getUrgencyIcon = (urgency: Notice['urgency']) => {
-    switch (urgency) {
-      case 'Urgent':
-        return <Flame className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />;
-      case 'Upcoming':
-        return <Clock3 className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />;
-      case 'Expired':
-        return <History className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />;
     }
   };
 
@@ -105,72 +83,47 @@ export default function NoticeCard({
 
   return (
     <article
-      className="bg-white rounded-2xl p-6 border border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+      className="bg-white rounded-2xl p-6 border border-slate-200/90 hover:border-slate-300 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
       aria-label={`Notice: ${notice.title}`}
     >
       <div className="space-y-3.5">
-        {/* Top Badges Row */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
+        {/* Clean Header: Category + Status */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
             <Badge variant={categoryVariantMap[notice.category]}>
               {getCategoryIcon(notice.category)}
               <span>{notice.category}</span>
             </Badge>
 
-            <Badge variant={urgencyVariantMap[notice.urgency]}>
-              {getUrgencyIcon(notice.urgency)}
-              <span>{notice.urgency}</span>
-            </Badge>
-
-            {notice.updatedBadge && (
-              <Badge variant="updated">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" aria-hidden="true" />
-                <span>Updated</span>
-              </Badge>
-            )}
-
-            {isRelevant && (
-              <Badge variant="relevant">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
-                <span>Relevant to You</span>
-              </Badge>
+            {notice.urgency === 'Urgent' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+                <Flame className="w-3 h-3 text-red-600" />
+                <span>Urgent</span>
+              </span>
             )}
           </div>
 
-          <div className="inline-flex items-center gap-1 text-xs font-mono font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg">
-            <Award className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
-            <span>Score: {notice.priorityScore}</span>
-          </div>
-        </div>
-
-        {/* Verification Status Badge */}
-        <div>
-          {notice.verificationStatus === 'Official' ? (
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"
-              title={notice.verificationReason || 'Official Source Verified'}
-            >
+          {/* Discreet Verification Indicator */}
+          <span
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500"
+            title={notice.verificationReason || (notice.verificationStatus === 'Official' ? 'Official Department Source' : 'Community Forward')}
+          >
+            {notice.verificationStatus === 'Official' ? (
               <ShieldCheck className="w-4 h-4 text-emerald-600" aria-hidden="true" />
-              <span>Official Source ({notice.verificationScore}%)</span>
-            </span>
-          ) : (
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200"
-              title={notice.verificationReason || 'Community Forward - Unverified'}
-            >
-              <ShieldAlert className="w-4 h-4 text-amber-600" aria-hidden="true" />
-              <span>Community Forward ({notice.verificationScore}%)</span>
-            </span>
-          )}
+            ) : (
+              <ShieldAlert className="w-4 h-4 text-amber-500" aria-hidden="true" />
+            )}
+            <span>{notice.verificationStatus}</span>
+          </span>
         </div>
 
         {/* Title & Countdown */}
         <div>
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition leading-snug">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
             {notice.title}
           </h3>
           {notice.date && (
-            <p className="text-xs font-bold text-indigo-600 mt-1 flex items-center gap-1.5">
+            <p className="text-xs font-bold text-blue-600 mt-1 flex items-center gap-1.5">
               <Clock3 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{getCountdown(notice.date)}</span>
             </p>
@@ -315,7 +268,7 @@ export default function NoticeCard({
             <span>Buddies {notice.buddies?.length ? `(${notice.buddies.length})` : ''}</span>
           </button>
 
-          {notice.registrationLink ? (
+          {notice.registrationLink && (
             <a
               href={notice.registrationLink}
               target="_blank"
@@ -326,10 +279,6 @@ export default function NoticeCard({
               <span>Register Now</span>
               <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
-          ) : (
-            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
-              Campus Event
-            </span>
           )}
         </div>
 
