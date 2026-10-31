@@ -2,6 +2,11 @@ import type { Notice, StudentContext, Urgency, ScheduleClash, Category, FocusMod
 
 // ─── Urgency Classification ─────────────────────────────────────
 
+/**
+ * Classifies the urgency of a notice based on its target ISO date string relative to current time.
+ * @param noticeDate ISO date string (YYYY-MM-DD)
+ * @returns Urgency tier: 'Urgent' (<24h), 'Upcoming' (future), or 'Expired' (past)
+ */
 export function classifyUrgency(noticeDate: string): Urgency {
   if (!noticeDate) return 'Upcoming';
 
@@ -30,12 +35,22 @@ const FOCUS_CATEGORY_MAP: Record<FocusMode, Category[]> = {
 
 // ─── Priority Score Computation ─────────────────────────────────
 
+/**
+ * Determines whether a notice represents a mandatory academic obligation (lab, practical, exam, viva).
+ * @param notice The notice entity to inspect
+ */
 export function isAcademicMandatoryNotice(notice: Notice): boolean {
   if (notice.category === 'Academic' || notice.category === 'Admin/Exam') return true;
   const lower = (notice.title + ' ' + (notice.rawText || '')).toLowerCase();
   return /lab|lecture|practical|viva|midsem|mid-sem|endsem|makeup|attendance|exam|submission/i.test(lower);
 }
 
+/**
+ * Computes a personalized priority score (0-100) combining urgency, department match,
+ * academic year alignment, focus mode affinity, and attendance triage weighting.
+ * @param notice The notice entity
+ * @param context The active student profile context
+ */
 export function computePriorityScore(notice: Notice, context: StudentContext): number {
   let score = 0;
 
@@ -101,6 +116,11 @@ function parseTimeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
+/**
+ * Detects schedule collisions between concurrent active notices sharing the same date and overlapping hours.
+ * @param notices List of notices to cross-examine for time conflicts
+ * @returns Array of ScheduleClash conflict descriptors
+ */
 export function detectClashes(notices: Notice[]): ScheduleClash[] {
   const clashes: ScheduleClash[] = [];
   const activeNotices = notices.filter(n => n.urgency !== 'Expired' && n.date && n.time);
@@ -207,6 +227,12 @@ export function getCountdown(isoDate: string): string {
 
 // ─── Weekly Digest Generator ────────────────────────────────────
 
+/**
+ * Generates an executive Markdown-formatted weekly briefing synthesizing immediate deadlines,
+ * clash alerts, upcoming milestones, and an aggregated action checklist for social sharing.
+ * @param notices Collection of all campus notices
+ * @param context Current student profile
+ */
 export function generateWeeklyDigest(notices: Notice[], context: StudentContext): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -309,6 +335,10 @@ export function generateWeeklyDigest(notices: Notice[], context: StudentContext)
 
 // ─── ICS Calendar Export ─────────────────────────────────────────
 
+/**
+ * Formats a notice entity into an RFC-5545 standard compliant iCalendar (.ics) format string.
+ * @param notice The notice to export
+ */
 export function generateICS(notice: Notice): string {
   const dtStart = notice.date
     ? notice.time

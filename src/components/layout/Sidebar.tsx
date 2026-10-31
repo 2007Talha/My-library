@@ -198,6 +198,37 @@ export default function Sidebar({
                   ))}
                 </select>
               </div>
+
+              {/* Attendance Triage Toggle */}
+              <div className="pt-2 border-t border-slate-200">
+                <label
+                  htmlFor="sidebar-attendance-warning"
+                  className="flex items-center justify-between cursor-pointer select-none group"
+                >
+                  <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900">
+                    Attendance Risk (&lt;75%)
+                  </span>
+                  <input
+                    id="sidebar-attendance-warning"
+                    type="checkbox"
+                    checked={context.lowAttendanceWarning}
+                    onChange={(e) =>
+                      onContextChange({
+                        ...context,
+                        lowAttendanceWarning: e.target.checked,
+                        attendancePercentage: e.target.checked ? 68 : 86,
+                      })
+                    }
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
+                    aria-label="Toggle Current Attendance warning status (<75%)"
+                  />
+                </label>
+                {context.lowAttendanceWarning && (
+                  <p className="text-[10px] text-red-600 font-bold mt-1">
+                    ⚠️ Mandatory makeup classes & labs prioritized
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
