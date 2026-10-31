@@ -111,7 +111,17 @@ export default function App() {
   };
 
   const handleScrollToAttention = () => {
-    document.getElementById('attention-section')?.scrollIntoView({ behavior: 'smooth' });
+    setViewMode('grid');
+    setSelectedUrgency('Urgent');
+    setTimeout(() => {
+      document.getElementById('attention-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const handleShowNoticeFeed = () => {
+    setViewMode('grid');
+    setSelectedUrgency('All');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -125,11 +135,6 @@ export default function App() {
       <Navbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        context={context}
-        onContextChange={(newContext) => {
-          setContext(newContext);
-          showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
-        }}
         onOpenDigest={() => setIsDigestOpen(true)}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         isSidebarCollapsed={isSidebarCollapsed}
@@ -143,6 +148,8 @@ export default function App() {
         <Sidebar
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          selectedUrgency={selectedUrgency}
+          onSelectFeed={handleShowNoticeFeed}
           context={context}
           onContextChange={(newContext) => {
             setContext(newContext);
@@ -177,7 +184,9 @@ export default function App() {
             </div>
 
             {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
-            <NeedsAttentionStrip notices={notices} clashes={clashes} />
+            <div id="attention-section" className="scroll-mt-20">
+              <NeedsAttentionStrip notices={notices} clashes={clashes} />
+            </div>
 
             {/* Smart Input & OCR Extractor Terminal */}
             <div id="smart-input-section">

@@ -1,11 +1,8 @@
 import { Search, X, Sparkles, KeyRound, ChevronLeft, ChevronRight, Menu, Library } from 'lucide-react';
-import type { StudentContext } from '../../types/notice';
 
 interface NavbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  context: StudentContext;
-  onContextChange: (context: StudentContext) => void;
   onOpenDigest: () => void;
   onOpenApiKeyModal: () => void;
   isSidebarCollapsed: boolean;
@@ -16,24 +13,12 @@ interface NavbarProps {
 export default function Navbar({
   searchQuery,
   onSearchChange,
-  context,
-  onContextChange,
   onOpenDigest,
   onOpenApiKeyModal,
   isSidebarCollapsed,
   onToggleSidebar,
   onOpenMobileSidebar,
 }: NavbarProps) {
-  const isLow = context.lowAttendanceWarning;
-
-  const toggleAttendance = () => {
-    onContextChange({
-      ...context,
-      lowAttendanceWarning: !isLow,
-      attendancePercentage: !isLow ? 68 : 86,
-    });
-  };
-
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200/90 shadow-2xs h-16 flex items-center px-4 sm:px-6 justify-between gap-4">
       {/* Left Branding & Sidebar Collapse */}
@@ -96,20 +81,6 @@ export default function Navbar({
 
       {/* Right Actions (Unstop Style) */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Attendance radar pill toggle */}
-        <button
-          type="button"
-          onClick={toggleAttendance}
-          className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
-            isLow
-              ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-              : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-          }`}
-          title="Toggle attendance status to test triage"
-        >
-          <span>{isLow ? '⚠️ <75% Risk' : '🛡️ Attendance 86%'}</span>
-        </button>
-
         {/* AI Digest pill (like "For Business" in Unstop) */}
         <button
           type="button"

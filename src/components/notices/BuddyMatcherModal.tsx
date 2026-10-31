@@ -69,7 +69,7 @@ export default function BuddyMatcherModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Attendance & Lab Buddy Matcher"
+      title="Study & Project Buddy Matcher"
       size="lg"
     >
       <div className="space-y-4 text-sm">

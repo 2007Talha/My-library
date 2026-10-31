@@ -15,7 +15,8 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
   if (urgentNotices.length === 0 && !hasClashes) {
     return (
       <section
-        className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between"
+        id="attention-section"
+        className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between scroll-mt-20"
         aria-label="Status: all clear"
         aria-live="polite"
       >
@@ -31,7 +32,7 @@ export default function NeedsAttentionStrip({ notices, clashes }: NeedsAttention
   return (
     <section
       id="attention-section"
-      className="space-y-3.5 pt-1"
+      className="space-y-3.5 pt-1 scroll-mt-20"
       aria-label="Needs attention today hero spotlight"
       aria-live="polite"
     >

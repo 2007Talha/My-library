@@ -2,20 +2,20 @@ import {
   LayoutGrid,
   Calendar,
   Flame,
-  AlertTriangle,
-  ShieldCheck,
   Plus,
   RotateCcw,
   Zap,
   X,
   User,
 } from 'lucide-react';
-import type { StudentContext, Branch, Year, FocusMode, ViewMode } from '../../types/notice';
+import type { StudentContext, Branch, Year, FocusMode, ViewMode, UrgencyFilter } from '../../types/notice';
 import { demoPresets } from '../../data/sampleNotices';
 
 interface SidebarProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
+  selectedUrgency: UrgencyFilter;
+  onSelectFeed: () => void;
   context: StudentContext;
   onContextChange: (context: StudentContext) => void;
   onScrollToInput: () => void;
@@ -38,6 +38,8 @@ const FOCUS_MODES: { value: FocusMode; label: string }[] = [
 export default function Sidebar({
   viewMode,
   onViewModeChange,
+  selectedUrgency,
+  onSelectFeed,
   context,
   onContextChange,
   onScrollToInput,
@@ -47,16 +49,6 @@ export default function Sidebar({
   isMobileOpen,
   onCloseMobile,
 }: SidebarProps) {
-  const isLow = context.lowAttendanceWarning;
-
-  const toggleAttendance = () => {
-    onContextChange({
-      ...context,
-      lowAttendanceWarning: !isLow,
-      attendancePercentage: !isLow ? 68 : 86,
-    });
-  };
-
   const sidebarContent = (
     <div className="flex flex-col h-full justify-between p-4 space-y-4 overflow-y-auto">
       <div className="space-y-4">
@@ -96,17 +88,17 @@ export default function Sidebar({
           <button
             type="button"
             onClick={() => {
-              onViewModeChange('grid');
+              onSelectFeed();
               onCloseMobile();
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
-              viewMode === 'grid'
+              viewMode === 'grid' && selectedUrgency !== 'Urgent'
                 ? 'bg-blue-50 text-blue-700 font-bold'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
             } ${isCollapsed ? 'justify-center px-2' : ''}`}
             title="Campus Notice Feed"
           >
-            <LayoutGrid size={18} className={viewMode === 'grid' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
+            <LayoutGrid size={18} className={viewMode === 'grid' && selectedUrgency !== 'Urgent' ? 'text-blue-600 shrink-0' : 'text-slate-500 shrink-0'} />
             {!isCollapsed && <span>Notice Feed</span>}
           </button>
 
@@ -128,46 +120,22 @@ export default function Sidebar({
             {!isCollapsed && <span>Calendar View</span>}
           </button>
 
-          {/* Needs Attention Jump */}
+          {/* Needs Attention Jump & Filter */}
           <button
             type="button"
             onClick={() => {
               onScrollToAttention();
               onCloseMobile();
             }}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer ${
-              isCollapsed ? 'justify-center px-2' : ''
-            }`}
-            title="Jump to Needs Attention Today"
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
+              selectedUrgency === 'Urgent' && viewMode === 'grid'
+                ? 'bg-red-50 text-red-700 font-bold border border-red-200'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            } ${isCollapsed ? 'justify-center px-2' : ''}`}
+            title="Filter to urgent tasks and spotlight Needs Attention"
           >
             <Flame size={18} className="text-red-500 shrink-0" />
             {!isCollapsed && <span>Needs Attention</span>}
-          </button>
-
-          {/* Attendance Radar Toggle */}
-          <button
-            type="button"
-            onClick={toggleAttendance}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer ${
-              isLow
-                ? 'bg-red-50 text-red-700 font-bold border border-red-200'
-                : 'text-slate-700 hover:bg-slate-100'
-            } ${isCollapsed ? 'justify-center px-2' : ''}`}
-            title="Click to toggle low attendance warning"
-          >
-            {isLow ? (
-              <AlertTriangle size={18} className="text-red-600 shrink-0 animate-bounce" />
-            ) : (
-              <ShieldCheck size={18} className="text-emerald-600 shrink-0" />
-            )}
-            {!isCollapsed && (
-              <div className="flex items-center justify-between w-full">
-                <span>Attendance Radar</span>
-                <span className={`text-xs px-2 py-0.5 rounded-md font-bold ${isLow ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                  {isLow ? '<75% Risk' : '86% Safe'}
-                </span>
-              </div>
-            )}
           </button>
         </nav>
 

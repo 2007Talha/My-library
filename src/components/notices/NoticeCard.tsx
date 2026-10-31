@@ -6,7 +6,6 @@ import {
   Trash2,
   CheckCircle2,
   Circle,
-  AlertCircle,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
@@ -29,7 +28,6 @@ import {
   formatDisplayTime,
   getCountdown,
   downloadICS,
-  isAcademicMandatoryNotice,
 } from '../../utils/priorityEngine';
 
 interface NoticeCardProps {
@@ -44,7 +42,7 @@ interface NoticeCardProps {
 
 export default function NoticeCard({
   notice,
-  context,
+  context: _context,
   checkedItems,
   isClashing,
   onToggleChecklistItem,
@@ -52,7 +50,6 @@ export default function NoticeCard({
   onOpenBuddyMatcher,
 }: NoticeCardProps) {
   const [showFullChecklist, setShowFullChecklist] = useState(false);
-  const isAttendanceRisk = context.lowAttendanceWarning && isAcademicMandatoryNotice(notice);
 
   const categoryVariantMap: Record<Notice['category'], 'academic' | 'placement' | 'events' | 'clubs' | 'admin'> = {
     'Academic': 'academic',
@@ -129,14 +126,6 @@ export default function NoticeCard({
             </p>
           )}
         </div>
-
-        {/* Attendance Risk Banner if applicable */}
-        {isAttendanceRisk && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-900 font-bold attendance-alert-pulse">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" aria-hidden="true" />
-            <span>⚠️ High Risk: Mandatory attendance required (&lt;75%)</span>
-          </div>
-        )}
 
         {/* Schedule Clash Alert if applicable */}
         {isClashing && (
@@ -261,7 +250,7 @@ export default function NoticeCard({
             type="button"
             onClick={() => onOpenBuddyMatcher(notice)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition"
-            title="Find or match with an attendance / project buddy"
+            title="Find or match with a study / project buddy"
             aria-label={`Open buddy matcher for ${notice.title}`}
           >
             <UserCheck className="w-3.5 h-3.5 text-purple-600" aria-hidden="true" />

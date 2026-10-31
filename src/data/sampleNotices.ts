@@ -396,7 +396,7 @@ See you there! 👋
 export const demoPresets: DemoPreset[] = [
   {
     label: '3rd Year CSE — Placement & Hackathon Seeker',
-    description: 'Focus on placements and tech events (Normal Attendance: 86%)',
+    description: 'Focus on placements, hiring drives, and competitive tech hackathons',
     context: {
       branch: 'CSE',
       year: '3rd',
@@ -406,8 +406,8 @@ export const demoPresets: DemoPreset[] = [
     },
   },
   {
-    label: '3rd Year CSE — ⚠️ Low Attendance Warning (<75%)',
-    description: 'Attendance in jeopardy (68%): prioritzes makeup classes, labs, and exam shifts over fests',
+    label: '3rd Year CSE — Urgent Lab & Mid-Term Exam Mode',
+    description: 'Prioritizes mandatory practicals, make-up submissions, and viva schedules',
     context: {
       branch: 'CSE',
       year: '3rd',
@@ -418,7 +418,7 @@ export const demoPresets: DemoPreset[] = [
   },
   {
     label: '1st Year Fresher Explorer',
-    description: 'Explore club orientations, fests, and campus events (Attendance: 92%)',
+    description: 'Explore campus clubs, orientations, hackathons, and cultural fests',
     context: {
       branch: 'All',
       year: '1st',
