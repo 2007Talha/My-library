@@ -262,3 +262,4 @@ export default function CalendarView({ notices }: CalendarViewProps) {
     </div>
   );
 }
+

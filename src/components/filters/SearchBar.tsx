@@ -38,3 +38,4 @@ export default function SearchBar({ value, onChange, resultCount }: SearchBarPro
     </div>
   );
 }
+

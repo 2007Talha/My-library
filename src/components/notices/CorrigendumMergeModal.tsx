@@ -111,3 +111,4 @@ export default function CorrigendumMergeModal({
     </Modal>
   );
 }
+

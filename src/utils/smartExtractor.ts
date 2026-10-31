@@ -401,9 +401,10 @@ export function parseTitle(text: string): string {
 
 // ─── Gemini AI Extraction ────────────────────────────────────────
 
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-2.5-flash'];
+
 async function extractWithGemini(text: string, apiKey: string): Promise<ExtractionResult | null> {
-  try {
-    const prompt = `Extract structured information from this campus notice/message. Return ONLY valid JSON with these fields:
+  const prompt = `Extract structured information from this campus notice/message. Return ONLY valid JSON with these fields:
 {
   "title": "concise title",
   "date": "YYYY-MM-DD or empty string",
@@ -420,43 +421,52 @@ async function extractWithGemini(text: string, apiKey: string): Promise<Extracti
 Notice text:
 ${text}`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: 'application/json',
-          },
-        }),
+  for (const model of GEMINI_MODELS) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: 'application/json',
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        console.warn(`Gemini (${model}) returned status ${response.status}. Falling back to offline NLP parser.`);
+        continue;
       }
-    );
 
-    if (!response.ok) return null;
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!content) continue;
 
-    const data = await response.json();
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!content) return null;
-
-    const parsed = JSON.parse(content);
-    return {
-      title: parsed.title || parseTitle(text),
-      date: parsed.date || '',
-      time: parsed.time || '',
-      venue: parsed.venue || '',
-      category: parsed.category || 'Academic',
-      targetBranches: parsed.targetBranches || ['All'],
-      targetYears: parsed.targetYears || ['1st', '2nd', '3rd', '4th'],
-      actionChecklist: parsed.actionChecklist || [],
-      registrationLink: parsed.registrationLink ? (validateUrl(parsed.registrationLink) || '') : '',
-      isCorrigendum: parsed.isCorrigendum || false,
-    };
-  } catch {
-    return null;
+      const parsed = JSON.parse(content);
+      return {
+        title: parsed.title || parseTitle(text),
+        date: parsed.date || '',
+        time: parsed.time || '',
+        venue: parsed.venue || '',
+        category: parsed.category || 'Academic',
+        targetBranches: parsed.targetBranches || ['All'],
+        targetYears: parsed.targetYears || ['1st', '2nd', '3rd', '4th'],
+        actionChecklist: parsed.actionChecklist || [],
+        registrationLink: parsed.registrationLink ? (validateUrl(parsed.registrationLink) || '') : '',
+        isCorrigendum: parsed.isCorrigendum || false,
+        source: 'gemini',
+      };
+    } catch (err) {
+      console.warn(`Gemini API connection error with model ${model}:`, err);
+    }
   }
+
+  return null;
 }
 
 // ─── Main Extraction Pipeline ────────────────────────────────────
@@ -473,6 +483,7 @@ export function extractLocal(text: string): ExtractionResult {
     actionChecklist: parseActionChecklist(text),
     registrationLink: parseRegistrationLink(text),
     isCorrigendum: isCorrigendum(text),
+    source: 'offline',
   };
 }
 
@@ -481,14 +492,14 @@ export async function extractNotice(
   apiKey?: string
 ): Promise<ExtractionResult> {
   // Try AI extraction first if key provided
-  if (apiKey) {
-    const aiResult = await extractWithGemini(text, apiKey);
+  if (apiKey && apiKey.trim()) {
+    const aiResult = await extractWithGemini(text, apiKey.trim());
     if (aiResult && aiResult.title && aiResult.title !== 'Untitled Notice') {
       return aiResult;
     }
   }
 
-  // Fallback to local NLP extraction
+  // Fallback to local heuristic NLP extraction
   return extractLocal(text);
 }
 

@@ -50,7 +50,10 @@ export default function SmartInputArea({ onNoticeExtracted, apiKey, context }: S
       onNoticeExtracted(notice, result.isCorrigendum);
       setInputText('');
       setPreviewResult(null);
-      showToast('Notice extracted and added successfully!', 'success');
+      showToast(
+        `Notice extracted via ${result.source === 'gemini' ? 'Gemini 3.8 Flash' : 'Offline Heuristic NLP'} and added!`,
+        'success'
+      );
     } catch {
       showToast('Failed to extract notice. Please try again.', 'error');
     } finally {
@@ -120,7 +123,12 @@ export default function SmartInputArea({ onNoticeExtracted, apiKey, context }: S
       {/* Extraction Preview */}
       {previewResult && (
         <div className="mt-3 bg-indigo-50 rounded-lg p-3 border border-indigo-200" role="status" aria-label="Extraction result preview">
-          <h3 className="text-sm font-medium text-indigo-800 mb-2">Extracted Fields:</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-indigo-800">Extracted Fields:</h3>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white border border-indigo-200 text-indigo-700">
+              {previewResult.source === 'gemini' ? '⚡ Gemini 3.8 Flash' : '🛡️ Offline Heuristic NLP'}
+            </span>
+          </div>
           <div className="grid grid-cols-2 gap-1 text-xs">
             <span className="text-gray-600">Title:</span>
             <span className="font-medium">{previewResult.title}</span>

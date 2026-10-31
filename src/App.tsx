@@ -25,7 +25,8 @@ const DEFAULT_CONTEXT: StudentContext = {
 
 export default function App() {
   const [context, setContext] = useLocalStorage<StudentContext>('campus-pulse-context', DEFAULT_CONTEXT);
-  const [apiKey, setApiKey] = useLocalStorage<string>('campus-pulse-gemini-key', '');
+  const envKey = (import.meta as { env?: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '';
+  const [apiKey, setApiKey] = useLocalStorage<string>('campus-pulse-gemini-key', envKey);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDigestOpen, setIsDigestOpen] = useState(false);
 

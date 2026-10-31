@@ -42,6 +42,7 @@ export interface ExtractionResult {
   actionChecklist: string[];
   registrationLink: string;
   isCorrigendum: boolean;
+  source?: 'gemini' | 'offline';
 }
 
 export interface ScheduleClash {

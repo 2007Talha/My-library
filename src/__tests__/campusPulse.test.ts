@@ -209,3 +209,4 @@ describe('Campus Pulse: Security & Sanitization', () => {
     expect(validateUrl('data:text/html,<script>evil()</script>')).toBeNull();
   });
 });
+
