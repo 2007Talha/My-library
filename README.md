@@ -117,7 +117,7 @@ Campus notices are frequently amended at the last minute (e.g., room change or p
 ## 3. How the Solution Works
 
 ### Step-by-Step User Flow
-1. **Student Context Switcher:** The user sets their **Branch** (e.g., CSE), **Year** (e.g., 3rd), and **Focus Mode** (e.g., Placements) or selects one of the 1-click **Demo Presets**. All priority scores and filters re-index instantaneously.
+1. **Executive Left Sidebar (Student Identity & Triage Deck):** The user sets their **Branch** (e.g., CSE), **Year** (e.g., 3rd), **Focus Mode** (e.g., Placements), and toggles **Attendance Status (<75% Risk vs Good)** or selects any of the 1-click **Demo Presets** from the sticky desktop sidebar (or mobile slide-out drawer). All priority scores, clash warnings, and filters re-index instantaneously.
 2. **Hero Spotlight ("Needs Attention Today"):** The top banner highlights urgent deadlines occurring today or tomorrow, countdown badges, and immediate schedule clash alerts.
 3. **Smart Input & 1-Click Samples:** Users paste unformatted text into the input field or click one of the 4 demo presets (WhatsApp Placement Forward, Hackathon Poster Caption, Exam Room Change Corrigendum, Club Orientation Email).
 4. **Extraction & Triage:** The notice is sanitized and parsed. Extracted data fields (title, date, time, venue, category, action checklist, registration link) are structured and inserted into state.

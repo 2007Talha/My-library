@@ -34,19 +34,19 @@ export default function ApiKeyModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Configure Gemini 3.8 Flash API Key" size="md">
-      <div className="space-y-4">
-        <div className="flex items-start gap-3 p-3.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-xs text-indigo-200">
-          <KeyRound className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" aria-hidden="true" />
+      <div className="space-y-4 text-xs">
+        <div className="flex items-start gap-3 p-3.5 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900">
+          <KeyRound className="w-5 h-5 text-indigo-600 mt-0.5 shrink-0" aria-hidden="true" />
           <div className="space-y-1">
-            <p className="font-bold text-slate-100">Optional Cloud AI Enhancement</p>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="font-bold text-slate-900 text-xs">Optional Cloud AI Enhancement</p>
+            <p className="text-slate-600 leading-relaxed text-[11px]">
               Campus Pulse includes a 100% offline, deterministic heuristic NLP parser. Providing a Gemini API key enables high-level LLM extraction, but is completely optional.
             </p>
           </div>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="gemini-key-input" className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          <label htmlFor="gemini-key-input" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
             Google Gemini API Key
           </label>
           <input
@@ -55,21 +55,21 @@ export default function ApiKeyModal({
             value={keyValue}
             onChange={(e) => setKeyValue(e.target.value)}
             placeholder="AIzaSy... or AQ.Ab8..."
-            className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono text-slate-100 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
             aria-label="Gemini API Key"
           />
         </div>
 
-        <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300">
-          <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" aria-hidden="true" />
+        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900">
+          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />
           <span>Security Notice: Stored strictly in local browser storage, never hardcoded in repository.</span>
         </div>
 
-        <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+        <div className="flex justify-between items-center pt-3 border-t border-slate-200">
           <button
             type="button"
             onClick={handleClear}
-            className="px-3 py-1.5 text-xs text-slate-400 hover:text-red-400 transition"
+            className="px-3 py-1.5 text-xs text-slate-500 hover:text-red-600 transition"
             aria-label="Remove stored API key"
           >
             Clear Key
@@ -78,14 +78,14 @@ export default function ApiKeyModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 transition"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition"
               aria-label="Save API key"
             >
               {showSavedNotification ? (

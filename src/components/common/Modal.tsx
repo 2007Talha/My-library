@@ -43,27 +43,27 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
-      <div className={`bg-slate-900 border border-slate-700/80 text-slate-100 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col overflow-hidden`}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/80">
-          <h2 className="text-base font-bold text-slate-100 tracking-tight flex items-center gap-2">
+      <div className={`bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150`}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/60">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
             {title}
           </h2>
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-100 transition"
+            className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition"
             aria-label="Close dialog"
           >
             <X size={18} />
           </button>
         </div>
-        <div className="p-5 overflow-y-auto flex-1 text-slate-200">
+        <div className="p-6 overflow-y-auto flex-1 text-slate-700">
           {children}
         </div>
       </div>
@@ -80,16 +80,16 @@ interface BadgeProps {
 }
 
 const BADGE_STYLES: Record<BadgeProps['variant'], string> = {
-  urgent: 'bg-red-500/15 text-red-400 border-red-500/30',
-  upcoming: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  expired: 'bg-slate-700/40 text-slate-400 border-slate-600/30',
-  academic: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-  placement: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-  events: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
-  clubs: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  admin: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-  relevant: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-xs',
-  updated: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+  urgent: 'bg-red-50 text-red-700 border-red-200',
+  upcoming: 'bg-amber-50 text-amber-700 border-amber-200',
+  expired: 'bg-slate-100 text-slate-600 border-slate-200',
+  academic: 'bg-sky-50 text-sky-700 border-sky-200',
+  placement: 'bg-purple-50 text-purple-700 border-purple-200',
+  events: 'bg-pink-50 text-pink-700 border-pink-200',
+  clubs: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  admin: 'bg-orange-50 text-orange-700 border-orange-200',
+  relevant: 'bg-indigo-50 text-indigo-700 border-indigo-200 font-bold',
+  updated: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
 export function Badge({ variant, children, className = '' }: BadgeProps) {
@@ -109,15 +109,15 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
   return (
-    <div className="inline-flex rounded-xl border border-slate-700/80 bg-slate-900/90 p-1" role="tablist" aria-label="View mode">
+    <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1" role="tablist" aria-label="View mode">
       <button
         role="tab"
         aria-selected={view === 'grid'}
         onClick={() => onViewChange('grid')}
         className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
           view === 'grid'
-            ? 'bg-indigo-600 text-white shadow-md'
-            : 'text-slate-400 hover:text-slate-200'
+            ? 'bg-white text-indigo-600 shadow-xs'
+            : 'text-slate-600 hover:text-slate-900'
         }`}
       >
         Card Feed
@@ -128,11 +128,11 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
         onClick={() => onViewChange('calendar')}
         className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition ${
           view === 'calendar'
-            ? 'bg-indigo-600 text-white shadow-md'
-            : 'text-slate-400 hover:text-slate-200'
+            ? 'bg-white text-indigo-600 shadow-xs'
+            : 'text-slate-600 hover:text-slate-900'
         }`}
       >
-        Calendar Schedule
+        Calendar
       </button>
     </div>
   );
@@ -175,16 +175,16 @@ export function ToastContainer() {
 
   const typeConfig = {
     success: {
-      border: 'border-emerald-500/40 bg-slate-900/95 text-emerald-300',
-      icon: <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />,
+      border: 'border-emerald-200 bg-white text-emerald-800 shadow-lg shadow-emerald-500/5',
+      icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />,
     },
     error: {
-      border: 'border-red-500/40 bg-slate-900/95 text-red-300',
-      icon: <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />,
+      border: 'border-red-200 bg-white text-red-800 shadow-lg shadow-red-500/5',
+      icon: <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />,
     },
     info: {
-      border: 'border-indigo-500/40 bg-slate-900/95 text-indigo-300',
-      icon: <Info className="w-4 h-4 text-indigo-400 shrink-0" />,
+      border: 'border-indigo-200 bg-white text-indigo-800 shadow-lg shadow-indigo-500/5',
+      icon: <Info className="w-4 h-4 text-indigo-600 shrink-0" />,
     },
   };
 
@@ -195,7 +195,7 @@ export function ToastContainer() {
         return (
           <div
             key={toast.id}
-            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl border shadow-xl backdrop-blur-md animate-in slide-in-from-bottom-2 ${config.border}`}
+            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl border ${config.border} animate-in slide-in-from-bottom-2`}
           >
             <div className="flex items-center gap-2.5 text-xs font-semibold">
               {config.icon}
@@ -203,7 +203,7 @@ export function ToastContainer() {
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="p-1 text-slate-400 hover:text-slate-200 transition"
+              className="p-1 text-slate-400 hover:text-slate-600 transition"
               aria-label="Dismiss notification"
             >
               <X size={14} />

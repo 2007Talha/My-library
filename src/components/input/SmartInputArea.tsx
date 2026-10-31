@@ -7,7 +7,7 @@ import {
   UploadCloud,
   ShieldCheck,
   ShieldAlert,
-  Terminal,
+  ClipboardList,
   ScanLine,
 } from 'lucide-react';
 import { sanitizeInput } from '../../utils/sanitizer';
@@ -120,25 +120,25 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
   };
 
   return (
-    <section className="glass-panel-elevated rounded-2xl p-5 space-y-4" aria-label="Smart extraction terminal">
+    <section className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4" aria-label="Smart extraction terminal">
       {/* Top Header & Tab Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center">
-            <Terminal size={16} className="text-indigo-400" aria-hidden="true" />
+          <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
+            <ClipboardList size={18} aria-hidden="true" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               Smart Input & Poster OCR Terminal
             </h2>
-            <p className="text-[11px] text-slate-400">
-              Paste chaotic text, raw forwards, or scan event flyers with OCR
+            <p className="text-xs text-slate-500 font-medium">
+              Paste messy WhatsApp forwards, raw text circulars, or scan flyer images
             </p>
           </div>
         </div>
 
         {/* Tab switch */}
-        <div className="inline-flex rounded-xl border border-slate-700/80 bg-slate-950/80 p-1" role="tablist" aria-label="Input mode selector">
+        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1" role="tablist" aria-label="Input mode selector">
           <button
             type="button"
             role="tab"
@@ -146,8 +146,8 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             onClick={() => setActiveTab('text')}
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
               activeTab === 'text'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-white text-indigo-600 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             💬 Text / WhatsApp
@@ -159,8 +159,8 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             onClick={() => setActiveTab('ocr')}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition ${
               activeTab === 'ocr'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-white text-indigo-600 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -176,14 +176,14 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Paste forwarded WhatsApp notices, email circulars, exam room updates, or fest poster captions..."
-            className="w-full h-32 px-4 py-3 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs font-mono text-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition resize-y placeholder:text-slate-500"
+            className="w-full h-32 px-4 py-3 bg-slate-50/80 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition resize-y placeholder:text-slate-400"
             aria-label="Paste notice text here"
           />
 
           {/* Sample Input Buttons */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-bold text-slate-400 mr-1 flex items-center gap-1">
-              <Zap size={12} className="text-amber-400" />
+            <span className="text-[11px] font-bold text-slate-600 mr-1 flex items-center gap-1">
+              <Zap size={13} className="text-amber-500" />
               1-Click Demo Messy Forwards:
             </span>
             {sampleMessyInputs.map((sample, idx) => (
@@ -191,7 +191,7 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
                 key={idx}
                 type="button"
                 onClick={() => handleSampleClick(sample.text)}
-                className="text-xs px-2.5 py-1 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 transition font-medium"
                 aria-label={`Load sample forward: ${sample.label}`}
               >
                 {sample.emoji} {sample.label}
@@ -216,34 +216,34 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
           {/* Dropzone with laser scanning effect */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="relative overflow-hidden border-2 border-dashed border-indigo-500/40 hover:border-indigo-400 bg-slate-950/60 hover:bg-slate-950/80 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 group"
+            className="relative overflow-hidden border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/20 hover:bg-indigo-50/50 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 group"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
             aria-label="Click or drop an event poster image"
           >
             {isScanningOcr && (
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent scanner-beam pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/10 to-transparent scanner-beam pointer-events-none" />
             )}
 
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center group-hover:scale-105 transition">
-              <UploadCloud className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl bg-white border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-xs group-hover:scale-105 transition">
+              <UploadCloud className="w-5 h-5" />
             </div>
 
             <div>
-              <p className="text-xs font-bold text-slate-200">
+              <p className="text-xs font-bold text-slate-800">
                 {selectedOcrFilename ? `Scanned File: ${selectedOcrFilename}` : 'Drop Event Poster / Flyer Screenshot, or Click to Browse'}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Simulates full optical character recognition & entity coordinate bounding
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Simulates optical character recognition (OCR) and layout entity detection
               </p>
             </div>
           </div>
 
           {/* 3 OCR Mock Demo Presets */}
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
-              <ScanLine size={12} className="text-cyan-400" />
+            <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+              <ScanLine size={13} className="text-indigo-600" />
               Test 3 Poster OCR Scenarios:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -252,14 +252,14 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
                   key={preset.id}
                   type="button"
                   onClick={() => handleOcrPresetClick(preset)}
-                  className="p-3 bg-slate-950/80 border border-slate-700/80 hover:border-indigo-500/60 hover:bg-slate-900 rounded-xl text-left transition flex flex-col justify-between space-y-1.5"
+                  className="p-3 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 rounded-xl text-left transition flex flex-col justify-between space-y-1.5 shadow-xs"
                   aria-label={`Load OCR scenario: ${preset.label}`}
                 >
-                  <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 border border-indigo-500/30 px-2 py-0.5 rounded-md w-max">
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-max">
                     {preset.badge}
                   </span>
-                  <span className="text-xs font-bold text-slate-200 leading-snug">{preset.label}</span>
-                  <span className="text-[10px] font-mono text-slate-400 truncate">{preset.filename}</span>
+                  <span className="text-xs font-bold text-slate-900 leading-snug">{preset.label}</span>
+                  <span className="text-[10px] font-mono text-slate-500 truncate">{preset.filename}</span>
                 </button>
               ))}
             </div>
@@ -267,11 +267,11 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
 
           {inputText && !isScanningOcr && (
             <div className="space-y-1 pt-1">
-              <span className="text-[11px] font-bold text-slate-400">OCR Extracted Text Buffer:</span>
+              <span className="text-[11px] font-bold text-slate-600">OCR Extracted Text Buffer:</span>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="w-full h-24 px-3 py-2 bg-slate-950/90 border border-slate-700 rounded-xl text-xs font-mono text-slate-200 resize-y"
+                className="w-full h-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 resize-y"
                 aria-label="OCR Raw text buffer"
               />
             </div>
@@ -280,16 +280,16 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
       )}
 
       {/* Extract Button Row */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-        <span className="text-[11px] text-slate-400">
-          {inputText ? `${inputText.length} chars ready` : '100% Offline-Ready Heuristic + Cloud AI Fallback'}
+      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+        <span className="text-[11px] text-slate-500 font-medium">
+          {inputText ? `${inputText.length} characters parsed` : 'Deterministic Heuristic NLP + Cloud AI Fallback'}
         </span>
 
         <button
           type="button"
           onClick={() => handleExtract()}
           disabled={isExtracting || isScanningOcr || !inputText.trim()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
           aria-label="Parse and add notice to calendar feed"
         >
           {isExtracting ? (
@@ -308,45 +308,45 @@ Official circular from Faculty Coordinator (Prof. K. Verma)`;
 
       {/* Extraction Preview Card */}
       {previewResult && (
-        <div className="bg-slate-950/90 rounded-xl p-3.5 border border-indigo-500/30 text-xs space-y-2 animate-in fade-in" role="status" aria-label="Extraction result preview">
+        <div className="bg-indigo-50/50 rounded-xl p-3.5 border border-indigo-200 text-xs space-y-2 animate-in fade-in" role="status" aria-label="Extraction result preview">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-200">Extracted Structured Notice</h3>
+            <h3 className="font-bold text-slate-900">Extracted Structured Notice</h3>
             <div className="flex items-center gap-2">
               {previewResult.verificationStatus === 'Official' ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold text-[10px]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-[10px]">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
                   Official Source ({previewResult.verificationScore}%)
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold text-[10px]">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 font-bold text-[10px]">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
                   Community Forward ({previewResult.verificationScore}%)
                 </span>
               )}
-              <span className="font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] border border-slate-700">
+              <span className="font-bold px-2.5 py-0.5 rounded-full bg-white text-slate-700 text-[10px] border border-slate-200">
                 {previewResult.source === 'gemini' ? '⚡ Gemini 3.8 Flash' : '🛡️ Offline NLP'}
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-slate-800 text-slate-300">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-indigo-100 text-slate-700">
             <div>
               <span className="text-[10px] text-slate-500 block">Title</span>
-              <span className="font-semibold truncate block">{previewResult.title}</span>
+              <span className="font-semibold text-slate-900 truncate block">{previewResult.title}</span>
             </div>
             <div>
               <span className="text-[10px] text-slate-500 block">Date & Time</span>
-              <span className="font-semibold block">
+              <span className="font-semibold text-slate-900 block">
                 {previewResult.date || 'TBD'} {previewResult.time ? `@ ${previewResult.time}` : ''}
               </span>
             </div>
             <div>
               <span className="text-[10px] text-slate-500 block">Venue</span>
-              <span className="font-semibold truncate block">{previewResult.venue || 'TBD'}</span>
+              <span className="font-semibold text-slate-900 truncate block">{previewResult.venue || 'TBD'}</span>
             </div>
             <div>
               <span className="text-[10px] text-slate-500 block">Category</span>
-              <span className="font-semibold block">{previewResult.category}</span>
+              <span className="font-semibold text-slate-900 block">{previewResult.category}</span>
             </div>
           </div>
         </div>

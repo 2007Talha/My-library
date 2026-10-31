@@ -40,15 +40,15 @@ export default function WeeklyDigestModal({
       size="lg"
     >
       <div className="space-y-4 text-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
-          <div className="flex items-center gap-2 text-slate-400">
-            <FileText className="w-4 h-4 text-indigo-400" aria-hidden="true" />
-            <span>Targeted for: <strong className="text-slate-200">{context.year} Year {context.branch}</strong> ({context.focusMode})</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+          <div className="flex items-center gap-2 text-slate-600">
+            <FileText className="w-4 h-4 text-indigo-600" aria-hidden="true" />
+            <span>Targeted for: <strong className="text-slate-900">{context.year} Year {context.branch}</strong> ({context.focusMode})</span>
           </div>
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-md shadow-indigo-500/20 transition shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition shrink-0 cursor-pointer"
             aria-label="Copy Clean WhatsApp Summary"
           >
             {copied ? (
@@ -66,16 +66,16 @@ export default function WeeklyDigestModal({
         </div>
 
         {/* Monospace terminal formatted digest preview */}
-        <div className="bg-slate-950 p-4 rounded-xl font-mono text-xs text-slate-200 overflow-x-auto whitespace-pre leading-relaxed border border-slate-800 shadow-inner max-h-[60vh]">
+        <div className="bg-slate-900 p-4 rounded-xl font-mono text-xs text-slate-100 overflow-x-auto whitespace-pre leading-relaxed border border-slate-800 shadow-inner max-h-[60vh]">
           {digestText}
         </div>
 
-        <div className="flex justify-between items-center pt-2 border-t border-slate-800 text-slate-500 text-[11px]">
+        <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-slate-500 text-[11px]">
           <span>Generated client-side with zero telemetry</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
           >
             Close
           </button>

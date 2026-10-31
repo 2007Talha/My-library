@@ -1,11 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Sparkles, BrainCircuit } from 'lucide-react';
 import type { StudentContext, Category, UrgencyFilter, Notice, ViewMode } from './types/notice';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNotices } from './hooks/useNotices';
-import Header from './components/layout/Header';
+import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/Footer';
-import StudentContextBar from './components/context/StudentContextBar';
 import NeedsAttentionStrip from './components/notices/NeedsAttentionStrip';
 import SmartInputArea from './components/input/SmartInputArea';
 import SearchBar from './components/filters/SearchBar';
@@ -105,107 +103,85 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 bg-grid-pattern selection:bg-indigo-500 selection:text-white">
-      {/* Header */}
-      <Header
-        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
-        onResetData={handleResetAllData}
-      />
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 text-slate-900 bg-light-grid selection:bg-indigo-600 selection:text-white">
+      {/* Accessible skip link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
 
-      {/* Student Identity Deck & Attendance Bar */}
-      <StudentContextBar
+      {/* Left Sidebar Navigation & Student Identity Deck */}
+      <Sidebar
         context={context}
         onContextChange={(newContext) => {
           setContext(newContext);
           showToast(`Persona updated: ${newContext.year} Year ${newContext.branch}`, 'info');
         }}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
+        onOpenDigest={() => setIsDigestOpen(true)}
+        onResetData={handleResetAllData}
       />
 
-      {/* Main Content Area */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Hero Spotlight: Needs Attention Today + Clashes */}
-        <NeedsAttentionStrip notices={notices} clashes={clashes} />
+      {/* Main Studio Feed Area on the Right */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Hero Spotlight: Needs Attention Today + Clash Triage */}
+          <NeedsAttentionStrip notices={notices} clashes={clashes} />
 
-        {/* Action Hero Bar: AI Weekly Digest Co-Pilot */}
-        <section className="glass-panel-elevated rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border border-indigo-500/30 bg-gradient-to-r from-indigo-950/50 via-slate-900 to-purple-950/40">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <h2 className="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
-                <BrainCircuit className="w-4 h-4 text-cyan-400" aria-hidden="true" />
-                AI Context-Aware Executive Dispatch
-              </h2>
-            </div>
-            <p className="text-xs text-slate-300">
-              Live intelligence indexed for <strong className="text-indigo-300">{context.year} Year {context.branch}</strong> (Focus: {context.focusMode})
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsDigestOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition cursor-pointer"
-            aria-label="Generate weekly executive digest"
-          >
-            <Sparkles className="w-4 h-4 text-white" aria-hidden="true" />
-            <span>What do I need to know this week?</span>
-          </button>
-        </section>
-
-        {/* Smart Input & OCR Extractor Terminal */}
-        <SmartInputArea
-          onNoticeExtracted={handleNoticeExtracted}
-          apiKey={apiKey}
-          context={context}
-        />
-
-        {/* Search, Filter & View Controls */}
-        <section className="glass-panel rounded-2xl p-4 space-y-4" aria-label="Notice search and view controls">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              resultCount={filteredNotices.length}
-            />
-
-            <div className="flex items-center justify-between sm:justify-end gap-3">
-              <ViewToggle view={viewMode} onViewChange={setViewMode} />
-            </div>
-          </div>
-
-          <FilterPills
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-            selectedUrgency={selectedUrgency}
-            onUrgencyChange={setSelectedUrgency}
-            relevantOnly={relevantOnly}
-            onRelevantOnlyToggle={setRelevantOnly}
-            onResetFilters={handleResetFilters}
-            hasActiveFilters={hasActiveFilters}
-          />
-        </section>
-
-        {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
-        {viewMode === 'grid' ? (
-          <NoticeGrid
-            notices={filteredNotices}
+          {/* Smart Input & OCR Extractor Terminal */}
+          <SmartInputArea
+            onNoticeExtracted={handleNoticeExtracted}
+            apiKey={apiKey}
             context={context}
-            clashes={clashes}
-            getCheckedItems={getCheckedItems}
-            onToggleChecklistItem={toggleChecklistItem}
-            onDeleteNotice={(id) => {
-              deleteNotice(id);
-              showToast('Notice archived from feed', 'info');
-            }}
-            onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
           />
-        ) : (
-          <CalendarView notices={filteredNotices} />
-        )}
-      </main>
 
-      {/* Footer */}
-      <Footer />
+          {/* Search, Filter & View Controls */}
+          <section className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4" aria-label="Notice search and view controls">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                resultCount={filteredNotices.length}
+              />
+
+              <div className="flex items-center justify-between sm:justify-end gap-3">
+                <ViewToggle view={viewMode} onViewChange={setViewMode} />
+              </div>
+            </div>
+
+            <FilterPills
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              selectedUrgency={selectedUrgency}
+              onUrgencyChange={setSelectedUrgency}
+              relevantOnly={relevantOnly}
+              onRelevantOnlyToggle={setRelevantOnly}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
+          </section>
+
+          {/* Organized Multi-Modal View (Card Grid OR Calendar) */}
+          {viewMode === 'grid' ? (
+            <NoticeGrid
+              notices={filteredNotices}
+              context={context}
+              clashes={clashes}
+              getCheckedItems={getCheckedItems}
+              onToggleChecklistItem={toggleChecklistItem}
+              onDeleteNotice={(id) => {
+                deleteNotice(id);
+                showToast('Notice archived from feed', 'info');
+              }}
+              onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
+            />
+          ) : (
+            <CalendarView notices={filteredNotices} />
+          )}
+        </main>
+
+        {/* Footer */}
+        <Footer />
+      </div>
 
       {/* Modals & Overlays */}
       <WeeklyDigestModal
