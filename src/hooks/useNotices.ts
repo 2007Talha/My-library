@@ -4,8 +4,8 @@ import { useLocalStorage } from './useLocalStorage';
 import { classifyUrgency, computePriorityScore, detectClashes, isRelevantToContext } from '../utils/priorityEngine';
 import { sampleNotices } from '../data/sampleNotices';
 
-const NOTICES_KEY = 'campus-pulse-notices';
-const CHECKED_ITEMS_KEY = 'campus-pulse-checked-items';
+const NOTICES_KEY = 'my-library-notices';
+const CHECKED_ITEMS_KEY = 'my-library-checked-items';
 
 export function useNotices(context: StudentContext) {
   const [notices, setNotices] = useLocalStorage<Notice[]>(NOTICES_KEY, sampleNotices);

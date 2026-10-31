@@ -40,7 +40,7 @@ export default function ApiKeyModal({
           <div className="space-y-1">
             <p className="font-bold text-slate-900 text-xs">Optional Cloud AI Enhancement</p>
             <p className="text-slate-600 leading-relaxed text-[11px]">
-              Campus Pulse includes a 100% offline, deterministic heuristic NLP parser. Providing a Gemini API key enables high-level LLM extraction, but is completely optional.
+              My Library includes a 100% offline, deterministic heuristic NLP parser. Providing a Gemini API key enables high-level LLM extraction, but is completely optional.
             </p>
           </div>
         </div>

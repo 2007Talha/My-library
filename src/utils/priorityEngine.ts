@@ -226,7 +226,7 @@ export function generateWeeklyDigest(notices: Notice[], context: StudentContext)
   const clashes = detectClashes(thisWeek);
   const missingVenue = thisWeek.filter(n => !n.venue);
 
-  let digest = `📊 CAMPUS PULSE WEEKLY EXECUTIVE DIGEST\n`;
+  let digest = `📊 MY LIBRARY WEEKLY EXECUTIVE DIGEST\n`;
   digest += `Target Student: ${context.year} Year ${context.branch} • Focus: ${context.focusMode}\n`;
   if (context.lowAttendanceWarning) {
     digest += `⚠️ ATTENDANCE STATUS: CRITICAL (< 75%) — Mandatory Academic Recovery Mode Active\n`;
@@ -302,7 +302,7 @@ export function generateWeeklyDigest(notices: Notice[], context: StudentContext)
   }
 
   digest += `${'═'.repeat(45)}\n`;
-  digest += `Forwarded via Campus Pulse 🎓 Stay organized & stay ahead.\n`;
+  digest += `Forwarded via My Library 🎓 Stay organized & stay ahead.\n`;
 
   return digest;
 }
@@ -329,7 +329,7 @@ export function generateICS(notice: Notice): string {
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//CampusPulse//EN',
+    'PRODID:-//MyLibrary//EN',
     'BEGIN:VEVENT',
     dtStart ? (notice.time ? `DTSTART:${dtStart}` : `DTSTART;VALUE=DATE:${dtStart}`) : '',
     dtEnd ? (notice.time ? `DTEND:${dtEnd}` : `DTEND;VALUE=DATE:${dtEnd}`) : '',

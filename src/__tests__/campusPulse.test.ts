@@ -12,7 +12,7 @@ import { classifyUrgency, computePriorityScore, detectClashes } from '../utils/p
 import { sanitizeInput, validateUrl } from '../utils/sanitizer';
 import type { Notice, StudentContext } from '../types/notice';
 
-describe('Campus Pulse: Smart Extraction Engine', () => {
+describe('My Library: Smart Extraction Engine', () => {
   it('1. extracts structured fields from messy WhatsApp forwarded text', () => {
     const rawMessyWhatsApp = `
       *FORWARDED AS RECEIVED* 🚨🚨🚨
@@ -111,7 +111,7 @@ describe('Campus Pulse: Smart Extraction Engine', () => {
   });
 });
 
-describe('Campus Pulse: Priority & Context Engine', () => {
+describe('My Library: Priority & Context Engine', () => {
   it('8. classifies urgency correctly into Urgent, Upcoming, and Expired', () => {
     const today = new Date();
     const todayISO = today.toISOString().split('T')[0];
@@ -308,7 +308,7 @@ describe('Campus Pulse: Priority & Context Engine', () => {
   });
 });
 
-describe('Campus Pulse: Security & Sanitization', () => {
+describe('My Library: Security & Sanitization', () => {
   it('12. strips dangerous script tags and event handlers to prevent XSS attacks', () => {
     const maliciousInput = '<script>alert("pwned")</script>Important Exam Notice <img src=x onerror=alert(1)>';
     const sanitized = sanitizeInput(maliciousInput);

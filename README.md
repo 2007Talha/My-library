@@ -1,6 +1,6 @@
-# Campus Pulse — Intelligent Context-Aware Campus Notice & Schedule Assistant
+# My Library — Intelligent Context-Aware Campus Notice & Schedule Assistant
 
-> Built for the **PromptWars × CSSS** Challenge by Google for Developers & H2S.
+> Built for the **PromptWars × CSSS** Challenge ("Campus Pulse" Problem Statement) by Google for Developers & H2S.
 
 [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -14,10 +14,10 @@
 
 ## 1. Chosen Vertical
 
-### **Campus Pulse — Intelligent Context-Aware Campus Notice & Schedule Assistant**
+### **My Library (Campus Pulse Challenge) — Intelligent Context-Aware Campus Notice & Schedule Assistant**
 *College students at every university face the same daily friction: scattered notices across fragmented WhatsApp groups, missed application deadlines, ambiguous event details, and no single source of truth for campus life.*
 
-**Campus Pulse** solves this problem by transforming unstructured, chaotic campus messages (forwarded WhatsApp texts, hasty emails, event poster captions) into clean, actionable, context-prioritized intelligence. It equips students with:
+**My Library** solves this problem by transforming unstructured, chaotic campus messages (forwarded WhatsApp texts, hasty emails, event poster captions) into clean, actionable, context-prioritized intelligence. It equips students with:
 - **Zero-Friction Smart Input & Poster OCR Mock:** Paste messy forwarded notices or upload event posters to trigger simulated OCR character extraction.
 - **Verification Confidence Score:** Flags notices as **Official Source** (verified against admin signatures, circular reference numbers, official emails) or **Community Forward** (with percentage confidence).
 - **Attendance Triage & Conflict Engine:** Simulates `<75%` attendance warning, automatically reprioritizing makeup classes, practical labs, and exam shifts as **"⚠️ High Risk / Urgent Alert"** over extracurricular fests.
@@ -47,7 +47,7 @@
 ┌────────────────────────────────────────────────────────────────────────┐
 │                       HYBRID EXTRACTION PIPELINE                       │
 │  ┌──────────────────────────────┐    ┌──────────────────────────────┐  │
-│  │ Optional Gemini 2.0 Flash    │ OR │ Heuristic Offline NLP Engine │  │
+│  │ Optional Gemini 3.8 Flash    │ OR │ Heuristic Offline NLP Engine │  │
 │  │ (Structured schema parsing)  │    │ (Regex, entity dictionary)   │  │
 │  └──────────────────────────────┘    └──────────────────────────────┘  │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -76,7 +76,7 @@
 ```
 
 ### A. Hybrid AI + Deterministic Heuristic NLP Pipeline (`src/utils/smartExtractor.ts`)
-Campus Pulse employs a robust, two-tiered hybrid parsing architecture:
+My Library employs a robust, two-tiered hybrid parsing architecture:
 1. **Tier 1 (Zero-Key Local NLP Engine):** Designed for complete offline capability, zero latency, and privacy preservation. It leverages rule-based heuristic tokenizers and regex extractors:
    - **Date Extraction & Normalization:** Resolves standard notations (`DD/MM/YYYY`, `DD-MM-YYYY`, `Month DD`, `YYYY-MM-DD`) and relative dates (`today`, `tomorrow`, `this Friday`, `next Monday`) normalized to ISO `YYYY-MM-DD`.
    - **Time Parser:** Handles both 12-hour (`HH:MM AM/PM`, `H PM`) and 24-hour formats (`HH:MM`), normalizing to military time.
@@ -88,7 +88,7 @@ Campus Pulse employs a robust, two-tiered hybrid parsing architecture:
      - `Clubs` (orientation, induction, society, student chapter, meetups)
      - `Academic` (lectures, labs, assignments, project submissions, viva)
    - **Checklist & Action Item Parser:** Identifies prep steps from bullets (`•`, `-`, `*`), numbered lists, and directive verbs (`bring`, `carry`, `submit`, `register`, `download`).
-2. **Tier 2 (Cloud AI Enhancement):** When an optional Google Gemini API key is configured in the browser, extraction automatically utilizes `gemini-2.0-flash` with strict JSON schema decoding. If the network call fails or the API key is absent, it seamlessly falls back to the deterministic Tier 1 engine without user disruption.
+2. **Tier 2 (Cloud AI Enhancement):** When an optional Google Gemini API key is configured in the browser, extraction automatically utilizes `gemini-3.8-flash` with strict JSON schema decoding. If the network call fails or the API key is absent, it seamlessly falls back to the deterministic Tier 1 engine without user disruption.
 
 ### B. Student Context Priority Matrix (`src/utils/priorityEngine.ts`)
 Each notice dynamically computes a real-time `priorityScore` (0–100) and urgency state calculated against the user's active profile:
@@ -194,8 +194,8 @@ The project includes automated unit test suites using **Vitest** in `src/__tests
 ## 5. Assumptions Made
 
 1. **Date Normalization:** When a notice does not explicitly specify a calendar year (e.g., "15th November"), the extractor assumes the event belongs to the current academic year. Past dates are automatically categorized into the `Expired` urgency bucket.
-2. **Zero-Key Deterministic Fallback:** While an optional Gemini 2.0 Flash API key can be saved in the client's local storage, the application operates 100% offline with zero external dependencies using the embedded heuristic parser.
-3. **Client-Side Persistence:** All notice data, checklist completion states, student context choices, and optional API keys are persisted strictly inside the browser's `localStorage` (`campus-pulse-notices`, `campus-pulse-context`, etc.). No student data or secrets ever leave the local machine.
+2. **Zero-Key Deterministic Fallback:** While an optional Gemini 3.8 Flash API key can be saved in the client's local storage, the application operates 100% offline with zero external dependencies using the embedded heuristic parser.
+3. **Client-Side Persistence:** All notice data, checklist completion states, student context choices, and optional API keys are persisted strictly inside the browser's `localStorage` (`my-library-notices`, `my-library-context`, etc.). No student data or secrets ever leave the local machine.
 4. **Schedule Collision Window:** Events on the same date with scheduled start times within 60 minutes of each other are assumed to conflict unless explicit end times dictate otherwise.
 5. **Initial Persona Presets:** First-time users load with pre-populated realistic campus data (mock tests, lab room changes, hackathons, auditions) so evaluators can test and understand the workflow immediately without onboarding instructions.
 

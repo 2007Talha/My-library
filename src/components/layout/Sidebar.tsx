@@ -59,7 +59,7 @@ export default function Sidebar({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-black text-slate-900 tracking-tight text-base font-mono">
-                  CAMPUS<span className="text-indigo-600">PULSE</span>
+                  MY<span className="text-indigo-600">LIBRARY</span>
                 </span>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                   v2.0
@@ -265,7 +265,7 @@ export default function Sidebar({
             <Activity className="w-4 h-4 animate-pulse" />
           </div>
           <span className="font-black text-slate-900 font-mono text-sm">
-            CAMPUS<span className="text-indigo-600">PULSE</span>
+            MY<span className="text-indigo-600">LIBRARY</span>
           </span>
         </div>
 
