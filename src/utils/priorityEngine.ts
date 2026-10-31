@@ -30,6 +30,12 @@ const FOCUS_CATEGORY_MAP: Record<FocusMode, Category[]> = {
 
 // ─── Priority Score Computation ─────────────────────────────────
 
+export function isAcademicMandatoryNotice(notice: Notice): boolean {
+  if (notice.category === 'Academic' || notice.category === 'Admin/Exam') return true;
+  const lower = (notice.title + ' ' + (notice.rawText || '')).toLowerCase();
+  return /lab|lecture|practical|viva|midsem|mid-sem|endsem|makeup|attendance|exam|submission/i.test(lower);
+}
+
 export function computePriorityScore(notice: Notice, context: StudentContext): number {
   let score = 0;
 
@@ -59,6 +65,15 @@ export function computePriorityScore(notice: Notice, context: StudentContext): n
     const affinities = FOCUS_CATEGORY_MAP[context.focusMode];
     if (affinities.includes(notice.category)) {
       score += 10;
+    }
+  }
+
+  // Attendance triage: If attendance is <75%, heavily boost academics/labs/exams and lower fests
+  if (context.lowAttendanceWarning) {
+    if (isAcademicMandatoryNotice(notice)) {
+      score += 35;
+    } else if (notice.category === 'Events/Fest' || notice.category === 'Clubs') {
+      score -= 25;
     }
   }
 
@@ -211,40 +226,68 @@ export function generateWeeklyDigest(notices: Notice[], context: StudentContext)
   const clashes = detectClashes(thisWeek);
   const missingVenue = thisWeek.filter(n => !n.venue);
 
-  let digest = `📊 CAMPUS PULSE WEEKLY DIGEST\n`;
-  digest += `Generated for: ${context.year} Year ${context.branch} | Focus: ${context.focusMode}\n`;
-  digest += `${'─'.repeat(40)}\n\n`;
+  let digest = `📊 CAMPUS PULSE WEEKLY EXECUTIVE DIGEST\n`;
+  digest += `Target Student: ${context.year} Year ${context.branch} • Focus: ${context.focusMode}\n`;
+  if (context.lowAttendanceWarning) {
+    digest += `⚠️ ATTENDANCE STATUS: CRITICAL (< 75%) — Mandatory Academic Recovery Mode Active\n`;
+  } else {
+    digest += `✅ Attendance Status: Good (${context.attendancePercentage || 85}%)\n`;
+  }
+  digest += `${'═'.repeat(45)}\n\n`;
+
+  // Attendance Alert Block
+  if (context.lowAttendanceWarning) {
+    digest += `🚨 ATTENDANCE RECOVERY PRIORITIES:\n`;
+    digest += `   Notice: Skipping scheduled practicals, lab submissions, or makeup classes will trigger detention.\n`;
+    digest += `   Action: Prioritize lab viva and makeup lectures over non-mandatory fests.\n\n`;
+  }
 
   // Today's must-dos
-  digest += `🚨 TODAY'S MUST-DOS (${todayItems.length})\n`;
+  digest += `🚨 IMMEDIATE DEADLINES & TODAY'S MUST-DOS (${todayItems.length})\n`;
   if (todayItems.length === 0) {
-    digest += `   ✅ No urgent items today. You're clear!\n`;
+    digest += `   ✅ No urgent items scheduled for today. You're clear!\n`;
   } else {
     todayItems.forEach(n => {
-      digest += `   • ${n.title}${n.time ? ` at ${formatDisplayTime(n.time)}` : ''}${n.venue ? ` | ${n.venue}` : ''}\n`;
+      const verifiedTag = n.verificationStatus === 'Official' ? '🛡️' : '⚠️';
+      digest += `   • ${verifiedTag} ${n.title}${n.time ? ` at ${formatDisplayTime(n.time)}` : ''}${n.venue ? ` | ${n.venue}` : ''}\n`;
       if (n.actionChecklist.length > 0) {
-        digest += `     📋 ${n.actionChecklist.join(', ')}\n`;
+        digest += `     📋 Prep: ${n.actionChecklist.slice(0, 3).join(', ')}\n`;
       }
     });
   }
   digest += '\n';
 
   // Upcoming this week
-  digest += `📅 UPCOMING THIS WEEK (${upcoming.length})\n`;
+  digest += `📅 KEY UPCOMING EVENTS THIS WEEK (${upcoming.length})\n`;
   if (upcoming.length === 0) {
     digest += `   No upcoming events this week.\n`;
   } else {
     upcoming.sort((a, b) => a.date.localeCompare(b.date)).forEach(n => {
-      digest += `   • ${formatDisplayDate(n.date)} — ${n.title}${n.time ? ` at ${formatDisplayTime(n.time)}` : ''}\n`;
+      const verifiedTag = n.verificationStatus === 'Official' ? '🛡️' : '⚠️';
+      digest += `   • ${formatDisplayDate(n.date)} — ${verifiedTag} ${n.title}${n.time ? ` at ${formatDisplayTime(n.time)}` : ''}\n`;
     });
   }
   digest += '\n';
 
   // Clashes
   if (clashes.length > 0) {
-    digest += `⚠️ TIME CLASHES DETECTED (${clashes.length})\n`;
+    digest += `⚠️ SCHEDULE CONFLICTS DETECTED (${clashes.length})\n`;
     clashes.forEach(c => {
       digest += `   ⚡ ${c.overlapDescription}\n`;
+    });
+    digest += '\n';
+  }
+
+  // Next Actions Grouping
+  const allActionItems: { notice: string; item: string }[] = [];
+  thisWeek.forEach(n => {
+    n.actionChecklist.forEach(i => allActionItems.push({ notice: n.title, item: i }));
+  });
+
+  if (allActionItems.length > 0) {
+    digest += `✅ NEXT ACTIONS GROUPING (ACTION CHECKLIST):\n`;
+    allActionItems.slice(0, 6).forEach((act) => {
+      digest += `   [ ] ${act.item} (${act.notice.slice(0, 25)}...)\n`;
     });
     digest += '\n';
   }
@@ -258,8 +301,8 @@ export function generateWeeklyDigest(notices: Notice[], context: StudentContext)
     digest += '\n';
   }
 
-  digest += `${'─'.repeat(40)}\n`;
-  digest += `Stay organized. Stay ahead. 🎯\n`;
+  digest += `${'═'.repeat(45)}\n`;
+  digest += `Forwarded via Campus Pulse 🎓 Stay organized & stay ahead.\n`;
 
   return digest;
 }

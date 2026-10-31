@@ -18,7 +18,10 @@
 *College students at every university face the same daily friction: scattered notices across fragmented WhatsApp groups, missed application deadlines, ambiguous event details, and no single source of truth for campus life.*
 
 **Campus Pulse** solves this problem by transforming unstructured, chaotic campus messages (forwarded WhatsApp texts, hasty emails, event poster captions) into clean, actionable, context-prioritized intelligence. It equips students with:
-- **Zero-Friction Smart Input:** Paste any messy forwarded notice and extract actionable data in under a second.
+- **Zero-Friction Smart Input & Poster OCR Mock:** Paste messy forwarded notices or upload event posters to trigger simulated OCR character extraction.
+- **Verification Confidence Score:** Flags notices as **Official Source** (verified against admin signatures, circular reference numbers, official emails) or **Community Forward** (with percentage confidence).
+- **Attendance Triage & Conflict Engine:** Simulates `<75%` attendance warning, automatically reprioritizing makeup classes, practical labs, and exam shifts as **"⚠️ High Risk / Urgent Alert"** over extracurricular fests.
+- **1-Click Attendance Buddy Matcher:** Enables students to RSVP and pair up with same-batch batchmates for mandatory lab submissions, study groups, or carpools to off-campus hackathons.
 - **Student Profile Context Engine:** Dynamically customizes urgency and relevance based on Branch (e.g., CSE, ECE, ME), Year of Study (1st–4th), and Focus Mode (Placements, Academics, Hackathons & Clubs).
 - **Hero "Needs Attention Today" Spotlight:** Surfacing critical tasks, 24-hour countdowns, and schedule clash warnings immediately.
 - **Multi-Modal Organized Views:** Seamless toggling between an interactive Card Grid and an organized Calendar Schedule.
@@ -177,11 +180,14 @@ The project includes automated unit test suites using **Vitest** in `src/__tests
 | 3 | 12-hour AM/PM to 24-hour time parsing and formatting | `smartExtractor.ts` | **PASS** |
 | 4 | Corrigendum & amendment keyword detection | `smartExtractor.ts` | **PASS** |
 | 5 | Action items checklist parsing from bullet characters and imperative verbs | `smartExtractor.ts` | **PASS** |
-| 6 | Urgency classification (`Urgent`, `Upcoming`, `Expired`) relative to current date | `priorityEngine.ts` | **PASS** |
-| 7 | Dynamic context priority boosting (branch, year, and focus mode affinities) | `priorityEngine.ts` | **PASS** |
-| 8 | Schedule conflict detection between overlapping event timeframes | `priorityEngine.ts` | **PASS** |
-| 9 | XSS prevention: Stripping `<script>` tags, inline handlers, and malicious HTML | `sanitizer.ts` | **PASS** |
-| 10 | Strict URL validation: Allowing `http:`/`https:`, rejecting `javascript:`/data URIs | `sanitizer.ts` | **PASS** |
+| 6 | Verification confidence scoring (Official signatory vs unverified community forward) | `smartExtractor.ts` | **PASS** |
+| 7 | Social context prerequisite enrichment & buddy matching recommendations | `smartExtractor.ts` | **PASS** |
+| 8 | Urgency classification (`Urgent`, `Upcoming`, `Expired`) relative to current date | `priorityEngine.ts` | **PASS** |
+| 9 | Dynamic context priority boosting (branch, year, and focus mode affinities) | `priorityEngine.ts` | **PASS** |
+| 10 | Low attendance triage inversion (prioritizing labs/exams over fests when <75%) | `priorityEngine.ts` | **PASS** |
+| 11 | Schedule conflict detection between overlapping event timeframes | `priorityEngine.ts` | **PASS** |
+| 12 | XSS prevention: Stripping `<script>` tags, inline handlers, and malicious HTML | `sanitizer.ts` | **PASS** |
+| 13 | Strict URL validation: Allowing `http:`/`https:`, rejecting `javascript:`/data URIs | `sanitizer.ts` | **PASS** |
 
 ---
 

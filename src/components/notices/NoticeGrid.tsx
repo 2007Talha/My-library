@@ -1,21 +1,25 @@
 import { Inbox } from 'lucide-react';
-import type { Notice, StudentContext } from '../../types/notice';
+import type { Notice, StudentContext, ScheduleClash } from '../../types/notice';
 import NoticeCard from './NoticeCard';
 
 interface NoticeGridProps {
   notices: Notice[];
   context: StudentContext;
+  clashes?: ScheduleClash[];
   getCheckedItems: (noticeId: string) => string[];
   onToggleChecklistItem: (noticeId: string, item: string) => void;
   onDeleteNotice: (id: string) => void;
+  onOpenBuddyMatcher: (notice: Notice) => void;
 }
 
 export default function NoticeGrid({
   notices,
   context,
+  clashes = [],
   getCheckedItems,
   onToggleChecklistItem,
   onDeleteNotice,
+  onOpenBuddyMatcher,
 }: NoticeGridProps) {
   if (notices.length === 0) {
     return (
@@ -35,6 +39,13 @@ export default function NoticeGrid({
     );
   }
 
+  // Set of notice IDs that have a schedule clash
+  const clashingNoticeIds = new Set<string>();
+  clashes.forEach(c => {
+    clashingNoticeIds.add(c.noticeA.id);
+    clashingNoticeIds.add(c.noticeB.id);
+  });
+
   return (
     <section aria-label="Campus notices feed">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -44,8 +55,10 @@ export default function NoticeGrid({
             notice={notice}
             context={context}
             checkedItems={getCheckedItems(notice.id)}
+            isClashing={clashingNoticeIds.has(notice.id)}
             onToggleChecklistItem={onToggleChecklistItem}
             onDeleteNotice={onDeleteNotice}
+            onOpenBuddyMatcher={onOpenBuddyMatcher}
           />
         ))}
       </div>

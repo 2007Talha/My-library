@@ -5,6 +5,17 @@ export type FocusMode = 'Placements' | 'Academics' | 'HackathonsClubs' | 'All';
 export type Category = 'Academic' | 'Placement' | 'Events/Fest' | 'Clubs' | 'Admin/Exam';
 export type Urgency = 'Urgent' | 'Upcoming' | 'Expired';
 
+export type VerificationStatus = 'Official' | 'Unverified';
+
+export interface BuddyProfile {
+  id: string;
+  name: string;
+  branch: Branch;
+  year: Year;
+  status: 'seeking' | 'matched';
+  note: string;
+}
+
 export interface Notice {
   id: string;
   title: string;
@@ -23,12 +34,20 @@ export interface Notice {
   updatesNoticeId: string | null;
   createdAt: string; // ISO datetime
   updatedBadge: boolean;
+  // Advanced Triage & Verification additions
+  verificationStatus: VerificationStatus;
+  verificationScore: number; // 0 to 100
+  verificationReason: string;
+  isAttendanceRisk?: boolean;
+  buddies?: BuddyProfile[];
 }
 
 export interface StudentContext {
   branch: Branch;
   year: Year;
   focusMode: FocusMode;
+  lowAttendanceWarning: boolean; // true if attendance < 75%
+  attendancePercentage: number;  // e.g. 68% or 85%
 }
 
 export interface ExtractionResult {
@@ -43,6 +62,9 @@ export interface ExtractionResult {
   registrationLink: string;
   isCorrigendum: boolean;
   source?: 'gemini' | 'offline';
+  verificationStatus?: VerificationStatus;
+  verificationScore?: number;
+  verificationReason?: string;
 }
 
 export interface ScheduleClash {

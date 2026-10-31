@@ -15,12 +15,15 @@ import CalendarView from './components/calendar/CalendarView';
 import WeeklyDigestModal from './components/digest/WeeklyDigestModal';
 import ApiKeyModal from './components/input/ApiKeyModal';
 import CorrigendumMergeModal from './components/notices/CorrigendumMergeModal';
+import BuddyMatcherModal from './components/notices/BuddyMatcherModal';
 import { ViewToggle, ToastContainer, showToast } from './components/common/Modal';
 
 const DEFAULT_CONTEXT: StudentContext = {
   branch: 'CSE',
   year: '3rd',
   focusMode: 'Placements',
+  lowAttendanceWarning: false,
+  attendancePercentage: 86,
 };
 
 export default function App() {
@@ -29,6 +32,7 @@ export default function App() {
   const [apiKey, setApiKey] = useLocalStorage<string>('campus-pulse-gemini-key', envKey);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDigestOpen, setIsDigestOpen] = useState(false);
+  const [activeBuddyNotice, setActiveBuddyNotice] = useState<Notice | null>(null);
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -183,12 +187,14 @@ export default function App() {
           <NoticeGrid
             notices={filteredNotices}
             context={context}
+            clashes={clashes}
             getCheckedItems={getCheckedItems}
             onToggleChecklistItem={toggleChecklistItem}
             onDeleteNotice={(id) => {
               deleteNotice(id);
               showToast('Notice removed', 'info');
             }}
+            onOpenBuddyMatcher={(notice) => setActiveBuddyNotice(notice)}
           />
         ) : (
           <CalendarView notices={filteredNotices} />
@@ -228,6 +234,17 @@ export default function App() {
         onAddNew={(notice) => {
           addNotice(notice);
           showToast('Added as separate notice', 'success');
+        }}
+      />
+
+      <BuddyMatcherModal
+        isOpen={!!activeBuddyNotice}
+        onClose={() => setActiveBuddyNotice(null)}
+        notice={activeBuddyNotice}
+        context={context}
+        onUpdateNoticeBuddies={(noticeId, updatedBuddies) => {
+          updateNotice(noticeId, { buddies: updatedBuddies });
+          setActiveBuddyNotice(prev => prev && prev.id === noticeId ? { ...prev, buddies: updatedBuddies } : prev);
         }}
       />
 

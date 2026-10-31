@@ -12,28 +12,44 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  ShieldAlert,
+  Users,
+  AlertTriangle,
 } from 'lucide-react';
 import type { Notice, StudentContext } from '../../types/notice';
 import { Badge } from '../common/Modal';
-import { formatDisplayDate, formatDisplayTime, getCountdown, downloadICS, isRelevantToContext } from '../../utils/priorityEngine';
+import {
+  formatDisplayDate,
+  formatDisplayTime,
+  getCountdown,
+  downloadICS,
+  isRelevantToContext,
+  isAcademicMandatoryNotice,
+} from '../../utils/priorityEngine';
 
 interface NoticeCardProps {
   notice: Notice;
   context: StudentContext;
   checkedItems: string[];
+  isClashing?: boolean;
   onToggleChecklistItem: (noticeId: string, item: string) => void;
   onDeleteNotice: (id: string) => void;
+  onOpenBuddyMatcher: (notice: Notice) => void;
 }
 
 export default function NoticeCard({
   notice,
   context,
   checkedItems,
+  isClashing,
   onToggleChecklistItem,
   onDeleteNotice,
+  onOpenBuddyMatcher,
 }: NoticeCardProps) {
   const [showFullChecklist, setShowFullChecklist] = useState(false);
   const isRelevant = isRelevantToContext(notice, context);
+  const isAttendanceRisk = context.lowAttendanceWarning && isAcademicMandatoryNotice(notice);
 
   const categoryVariantMap: Record<Notice['category'], 'academic' | 'placement' | 'events' | 'clubs' | 'admin'> = {
     'Academic': 'academic',
@@ -66,7 +82,7 @@ export default function NoticeCard({
       className={`bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden border-l-4 ${borderLeftColor[notice.category]}`}
       aria-label={`Notice: ${notice.title}`}
     >
-      <div className="p-5 space-y-3.5">
+      <div className="p-5 space-y-3">
         {/* Top Badges Row */}
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -98,6 +114,27 @@ export default function NoticeCard({
           </div>
         </div>
 
+        {/* Verification Status Badge */}
+        <div>
+          {notice.verificationStatus === 'Official' ? (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200"
+              title={notice.verificationReason || 'Official Source Verified'}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
+              Verified Official ({notice.verificationScore}%)
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200"
+              title={notice.verificationReason || 'Community Forward - Unverified'}
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" aria-hidden="true" />
+              Community Forward ({notice.verificationScore}%)
+            </span>
+          )}
+        </div>
+
         {/* Title */}
         <div>
           <h3 className="text-base font-bold text-gray-900 leading-snug line-clamp-2">
@@ -109,6 +146,22 @@ export default function NoticeCard({
             </p>
           )}
         </div>
+
+        {/* Attendance Risk Banner if applicable */}
+        {isAttendanceRisk && (
+          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-xs text-red-900 font-semibold animate-pulse">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" aria-hidden="true" />
+            <span>⚠️ High Risk Alert: Mandatory lab/class attendance required (&lt;75%)</span>
+          </div>
+        )}
+
+        {/* Schedule Clash Alert if applicable */}
+        {isClashing && (
+          <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-xs text-amber-900 font-semibold">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />
+            <span>Time Overlap: 2 items clash today</span>
+          </div>
+        )}
 
         {/* Metadata grid */}
         <div className="space-y-1.5 text-xs text-gray-600">
@@ -148,7 +201,7 @@ export default function NoticeCard({
         {notice.actionChecklist.length > 0 && (
           <div className="pt-2 border-t border-gray-100">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-gray-700">Action Items & Prep:</span>
+              <span className="text-xs font-semibold text-gray-700">Prerequisites & Action Checklist:</span>
               <span className="text-[11px] text-gray-500">
                 {checkedItems.length}/{notice.actionChecklist.length} done
               </span>
@@ -206,8 +259,8 @@ export default function NoticeCard({
       </div>
 
       {/* Card Footer Actions */}
-      <div className="p-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
+      <div className="p-3 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => downloadICS(notice)}
@@ -217,6 +270,18 @@ export default function NoticeCard({
           >
             <Download className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" />
             <span>.ics</span>
+          </button>
+
+          {/* 1-Click Buddy Matcher Button */}
+          <button
+            type="button"
+            onClick={() => onOpenBuddyMatcher(notice)}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 focus:ring-2 focus:ring-purple-500 transition"
+            title="Find or match with an attendance / project buddy"
+            aria-label={`Open buddy matcher for ${notice.title}`}
+          >
+            <Users className="w-3.5 h-3.5 text-purple-600" aria-hidden="true" />
+            <span>Buddies {notice.buddies?.length ? `(${notice.buddies.length})` : ''}</span>
           </button>
 
           {notice.registrationLink && (
@@ -246,4 +311,3 @@ export default function NoticeCard({
     </article>
   );
 }
-

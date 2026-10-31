@@ -469,21 +469,115 @@ ${text}`;
   return null;
 }
 
+// ─── Verification Confidence Scoring ───────────────────────────
+
+export function assessVerificationConfidence(text: string): {
+  status: 'Official' | 'Unverified';
+  score: number;
+  reason: string;
+} {
+  const lower = text.toLowerCase();
+  let score = 50;
+  const officialHits: string[] = [];
+  const unverifiedHits: string[] = [];
+
+  // Official authority indicators
+  if (/controller\s+of\s+examination|coe|dean|principal|head\s+of\s+department|hod|registrar/i.test(lower)) {
+    score += 25;
+    officialHits.push('Official administration signatory');
+  }
+  if (/dr\.|prof\.|faculty\s+advisor|placement\s+officer|placement\s+cell/i.test(lower)) {
+    score += 15;
+    officialHits.push('Faculty/Officer designation');
+  }
+  if (/ref(?:\s+no)?\s*[:.\-]\s*[\w\d\-/]+|circular\s+no|order\s+no/i.test(lower)) {
+    score += 20;
+    officialHits.push('Document Reference/Circular number');
+  }
+  if (/@[\w\-.]*(?:ac\.in|edu|college|univ)/i.test(lower)) {
+    score += 15;
+    officialHits.push('Institutional domain contact');
+  }
+  if (/room\s+(?:no\.?\s*)?\d+|block\s+[a-z]|cabin\s+\d+/i.test(lower)) {
+    score += 10;
+    officialHits.push('Verifiable physical office location');
+  }
+
+  // Unverified/informal indicators
+  if (/\b(?:forwarded\s+as\s+received|forwarded\s+many\s+times|\*forwarded\*)\b/i.test(lower)) {
+    score -= 25;
+    unverifiedHits.push('Unverified social forwarding chain');
+  }
+  if (/\b(?:rumour|rumor|unconfirmed|someone\s+said|heard\s+that|might\s+be|unofficial)\b/i.test(lower)) {
+    score -= 30;
+    unverifiedHits.push('Hearsay/speculative phrasing');
+  }
+  if (!/(?:date|time|venue|location|room)/i.test(lower)) {
+    score -= 15;
+    unverifiedHits.push('Missing verifiable event logistics');
+  }
+
+  const finalScore = Math.max(15, Math.min(99, score));
+  const isOfficial = finalScore >= 65;
+
+  return {
+    status: isOfficial ? 'Official' : 'Unverified',
+    score: finalScore,
+    reason: isOfficial
+      ? (officialHits.length > 0 ? officialHits.join(' • ') : 'Direct verified departmental release')
+      : (unverifiedHits.length > 0 ? unverifiedHits.join(' • ') : 'Community forward without administrative signature'),
+  };
+}
+
+// ─── Social & Context Prerequisite Enrichment ────────────────────
+
+export function enrichSocialPrerequisites(checklist: string[], category: Category, text: string): string[] {
+  const result = [...checklist];
+  const lower = text.toLowerCase();
+
+  // If hackathon/fest and no buddy item, suggest finding a teammate
+  if ((category === 'Events/Fest' || lower.includes('hackathon') || lower.includes('ideathon')) &&
+      !result.some(i => /team|buddy|partner/i.test(i))) {
+    result.push('👥 Connect with a project buddy / assemble team');
+  }
+
+  // If academic lab / practical
+  if ((category === 'Academic' || lower.includes('lab') || lower.includes('practical')) &&
+      !result.some(i => /manual|code|repo/i.test(i))) {
+    result.push('💻 Prepare lab manual & push code to Git repo');
+  }
+
+  // If placement drive
+  if (category === 'Placement' && !result.some(i => /resume|cv/i.test(i))) {
+    result.push('📄 Print 2 hardcopies of updated resume & college ID');
+  }
+
+  return [...new Set(result)].slice(0, 8);
+}
+
 // ─── Main Extraction Pipeline ────────────────────────────────────
 
 export function extractLocal(text: string): ExtractionResult {
+  const category = classifyCategory(text);
+  const rawChecklist = parseActionChecklist(text);
+  const actionChecklist = enrichSocialPrerequisites(rawChecklist, category, text);
+  const verification = assessVerificationConfidence(text);
+
   return {
     title: parseTitle(text),
     date: parseDate(text),
     time: parseTime(text),
     venue: parseVenue(text),
-    category: classifyCategory(text),
+    category,
     targetBranches: parseTargetBranches(text),
     targetYears: parseTargetYears(text),
-    actionChecklist: parseActionChecklist(text),
+    actionChecklist,
     registrationLink: parseRegistrationLink(text),
     isCorrigendum: isCorrigendum(text),
     source: 'offline',
+    verificationStatus: verification.status,
+    verificationScore: verification.score,
+    verificationReason: verification.reason,
   };
 }
 
@@ -495,7 +589,14 @@ export async function extractNotice(
   if (apiKey && apiKey.trim()) {
     const aiResult = await extractWithGemini(text, apiKey.trim());
     if (aiResult && aiResult.title && aiResult.title !== 'Untitled Notice') {
-      return aiResult;
+      const verification = assessVerificationConfidence(text);
+      return {
+        ...aiResult,
+        actionChecklist: enrichSocialPrerequisites(aiResult.actionChecklist, aiResult.category, text),
+        verificationStatus: verification.status,
+        verificationScore: verification.score,
+        verificationReason: verification.reason,
+      };
     }
   }
 
